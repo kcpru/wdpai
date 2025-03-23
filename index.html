@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Y - twitter copy</title>
+    <link rel="stylesheet" type="text/css" href="styles/variables.css" />
+    <link rel="stylesheet" type="text/css" href="styles/styles.css" />
+  </head>
+  <body>
+    <div id="header">
+      <h1>𝕐</h1>
+    </div>
+
+    <!-- Button -->
+    <button-component variant="primary" disabled>Primary</button-component>
+    <button-component variant="secondary">Secondary</button-component>
+    <button-component variant="tertiary">Tertiary</button-component>
+    <button-component variant="danger">Danger</button-component>
+
+    <!-- Input -->
+    <field-component
+      type="email"
+      placeholder="Enter your email"
+      default-value="example@email.com"
+    >
+      <span slot="label">Email</span>
+      <span slot="start-element">$</span>
+      <span slot="end-element">@gmail.com</span>
+      <span slot="error-text">Invalid email</span>
+      <span slot="helper-text">Your real name</span>
+    </field-component>
+
+    <create-post></create-post>
+
+    <script src="main.js" type="module"></script>
+  </body>
+</html>
