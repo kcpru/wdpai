@@ -6,12 +6,17 @@ class FieldComponent extends HTMLElement {
       <style>
         :host {
           display: block;
-          margin-bottom: 16px;
+        }
+        label {
+          font-size: 16px;
+          margin-bottom: 8px;
+          font-style: normal;
+          display: block;
         }
         .group {
           display: flex;
           align-items: center;
-          border: 1px solid #ced4da;
+          border: 1px solid hsl(var(--accent));
           border-radius: 5px;
           overflow: hidden;
           padding: 10px;
@@ -49,6 +54,7 @@ class FieldComponent extends HTMLElement {
           border-color: green;
         }
       </style>
+
       <label>
         <slot name="label"></slot>
       </label>
@@ -92,6 +98,16 @@ class FieldComponent extends HTMLElement {
     const input = this.shadowRoot.querySelector("input");
     input.addEventListener("input", () => this.validate());
     input.addEventListener("blur", () => this.validate());
+
+    const label = this.shadowRoot.querySelector("label");
+    const slot = label.querySelector("slot");
+    const labelName = slot
+      .assignedNodes()[0]
+      .textContent.toLocaleLowerCase()
+      .split(" ")
+      .join("-");
+    input.setAttribute("id", labelName);
+    label.setAttribute("for", labelName);
   }
 
   validate() {
@@ -125,5 +141,3 @@ class FieldComponent extends HTMLElement {
 }
 
 customElements.define("field-component", FieldComponent);
-
-export { FieldComponent };

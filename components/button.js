@@ -97,4 +97,4 @@ class ButtonComponent extends HTMLElement {
   }
 }
 
-export default ButtonComponent;
+customElements.define("button-component", ButtonComponent);

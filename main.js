@@ -1,7 +1,7 @@
-import ButtonComponent from "./components/button.js";
-import "./components/input.js";
+import "./components/button.js";
+import "./components/field.js";
 import "./components/create-post.js";
-import SelectComponent from "./components/select.js";
+import "./components/select.js";
 
 // import "./select.js";
 // import "./textarea.js";
@@ -28,16 +28,3 @@ import SelectComponent from "./components/select.js";
 // import "./card.js";
 // import "./list-group.js";
 // import "./navbar.js";
-
-customElements.define("button-component", ButtonComponent);
-
-// customElements.define("field-root", FieldRoot);
-// customElements.define("field-label", FieldLabel);
-// customElements.define("field-required-indicator", FieldRequiredIndicator);
-// customElements.define("field-helper-text", FieldHelperText);
-// customElements.define("field-error-text", FieldErrorText);
-// customElements.define("input-group", InputGroup);
-// customElements.define("input-component", InputComponent);
-// customElements.define("textarea-component", TextareaComponent);
-
-customElements.define("select-component", SelectComponent);

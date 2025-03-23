@@ -76,4 +76,4 @@ class SelectComponent extends HTMLElement {
   }
 }
 
-export default SelectComponent;
+customElements.define("select-component", SelectComponent);

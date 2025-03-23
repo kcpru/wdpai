@@ -22,4 +22,4 @@ class MainHeader extends HTMLElement {
   }
 }
 
-export default MainHeader;
+customElements.define("main-header", MainHeader);

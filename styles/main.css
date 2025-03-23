@@ -1,0 +1,14 @@
+@layer base, default, reset;
+
+/* @import "./reset.css" layer(reset); */
+@import "./variables.css" layer(base);
+@import "./fonts.css" layer(base);
+
+@layer default {
+  html {
+    font-size: 16px;
+    font-family: var(--font-sans);
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+  }
+}
