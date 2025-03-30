@@ -6,15 +6,14 @@ class ButtonComponent extends HTMLElement {
 			<style>
 				:host {
 					display: inline-block;
-					font-family: sans-serif;
 				}
 				button {
-					padding: 10px 20px;
-					font-size: 16px;
+				  padding: 10px 20px;
 					border: none;
 					border-radius: calc(var(--radius) / 2);
 					cursor: pointer;
 					outline: none;
+					font-family: inherit;
 				}
 				button.primary {
 					background-color: #007bff;
@@ -29,7 +28,7 @@ class ButtonComponent extends HTMLElement {
 					color: white;
 				}
 				button.danger {
-					background-color: #dc3545;
+					background-color: #c84259;
 					color: white;
 				}
 				button.warning {
@@ -60,9 +59,11 @@ class ButtonComponent extends HTMLElement {
 			</button>
     `;
   }
+
   static get observedAttributes() {
     return ["variant", "disabled"];
   }
+
   attributeChangedCallback(name, oldValue, newValue) {
     const button = this.shadowRoot.querySelector("button");
     button.className = newValue;
@@ -78,9 +79,11 @@ class ButtonComponent extends HTMLElement {
       }
     }
   }
+
   get variant() {
     return this.getAttribute("variant");
   }
+
   set variant(value) {
     this.setAttribute("variant", value);
   }
@@ -88,6 +91,7 @@ class ButtonComponent extends HTMLElement {
   get disabled() {
     return this.hasAttribute("disabled");
   }
+
   set disabled(value) {
     if (value) {
       this.setAttribute("disabled", "");

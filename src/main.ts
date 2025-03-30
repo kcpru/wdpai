@@ -1,7 +1,9 @@
-import "./components/button.js";
-import "./components/field.js";
-import "./components/create-post.js";
-import "./components/select.js";
+import "./styles.css";
+
+import "./components/button.ts";
+import "./components/field.ts";
+import "./components/create-post.ts";
+import "./components/select.ts";
 
 // import "./select.js";
 // import "./textarea.js";

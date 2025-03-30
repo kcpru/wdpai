@@ -6,52 +6,65 @@ class FieldComponent extends HTMLElement {
       <style>
         :host {
           display: block;
+          border-radius: var(--radius-lg);
+          padding: var(--spacing-xl);
+          background: transparent;
+          transition: background-color 0.15s ease;
+        }
+        :host(:focus-within) {
+          background: hsl(var(--ring) / 0.1);
         }
         label {
-          font-size: 16px;
-          margin-bottom: 8px;
+          font-weight: var(--font-medium);
+          margin-bottom: var(--spacing-xs);
           font-style: normal;
           display: block;
         }
         .group {
           display: flex;
           align-items: center;
-          border: 1px solid hsl(var(--accent));
-          border-radius: 5px;
-          overflow: hidden;
-          padding: 10px;
-          font-size: 16px;
+          border-radius: var(--radius-md);
+          padding: var(--spacing-xs);
+          font-size: var(--text-base);
+          background: hsl(var(--input));
+        }
+        .group:focus-within {
+          box-shadow: var(--shadow-outline);
         }
         .addon {
-          background: #f1f1f1;
-          padding: 10px;
-          border-right: 1px solid #ced4da;
+          padding: 0 var(--spacing-md);
         }
         .addon:last-child {
-          border-left: 1px solid #ced4da;
           border-right: none;
         }
         input {
           flex: 1;
-          border: none;
-          outline: none;
           font-size: inherit;
+          background: transparent;
+          border: none;
+          color: inherit;
+        }
+        input:focus,
+        input:active {
+          outline: none;
+        }
+        input:focus-visible {
+          outline: none;
         }
         .error {
           color: red;
-          font-size: 12px;
-          margin-top: 4px;
+          font-size: var(--text-xs);
+          margin-top: var(--spacing-xs);
         }
         .helper {
-          color: #6c757d;
-          font-size: 12px;
-          margin-top: 4px;
+          font-size: var(--text-xs);
+          margin-top: var(--spacing-xs);
         }
         .invalid {
-          border-color: red;
+          border-color: #c84259;
         }
         .valid {
-          border-color: green;
+          border-color: #afd17f;
         }
       </style>
 
@@ -63,8 +76,8 @@ class FieldComponent extends HTMLElement {
         <input type="text" />
         <span class="addon" id="end"><slot name="end-element"></slot></span>
       </div>
-      <p class="error" id="error"><slot name="error-text"></slot></p>
-      <p class="helper" id="helper"><slot name="helper-text"></slot></p>
+      <span class="error" id="error"><slot name="error-text"></slot></span>
+      <span class="helper" id="helper"><slot name="helper-text"></slot></span>
     `;
   }
 

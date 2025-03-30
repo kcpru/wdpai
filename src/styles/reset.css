@@ -12,11 +12,14 @@ html {
   tab-size: 4;
 }
 
-*,
-::before,
-::after {
-  background-repeat: no-repeat; /* Set `background-repeat: no-repeat` to all elements and pseudo elements */
+*:not(:host),
+::before:not(:host),
+::after:not(:host) {
+  background-repeat: no-repeat;
   box-sizing: inherit;
+  padding: 0;
+  margin: 0;
+  border: 0;
 }
 
 ::before,
@@ -25,7 +28,47 @@ html {
   vertical-align: inherit;
 }
 
-* {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+figure,
+figcaption,
+dl,
+dd,
+ol,
+ul,
+li,
+a,
+strong,
+b,
+code,
+kbd,
+pre,
+samp,
+hr,
+table,
+caption,
+th,
+td,
+fieldset,
+legend,
+address,
+main,
+details,
+summary,
+input,
+button,
+select,
+textarea,
+img,
+svg,
+audio,
+video {
   padding: 0; /* Reset `padding` and `margin` of all elements */
   margin: 0;
 }
@@ -120,6 +163,7 @@ iframe {
    # ================================================================= */
 
 input {
+  border: 3px solid red;
   border-radius: 0;
 }
 
