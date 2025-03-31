@@ -4,6 +4,7 @@ import "./components/button.ts";
 import "./components/field.ts";
 import "./components/create-post.ts";
 import "./components/select.ts";
+import "./components/card-component.ts"
 
 // import "./select.js";
 // import "./textarea.js";

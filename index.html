@@ -17,18 +17,40 @@
     <button-component variant="tertiary">Tertiary</button-component>
     <button-component variant="danger">Danger</button-component>
 
-    <!-- Input -->
-    <field-component
-      type="email"
-      placeholder="Enter your email"
-      default-value="example@email.com"
-    >
-      <span slot="label">Email</span>
-      <span slot="start-element">$</span>
-      <span slot="end-element">@gmail.com</span>
-      <span slot="error-text">Invalid email</span>
-      <span slot="helper-text">Your real name</span>
-    </field-component>
+    <!-- Login form -->
+    <card-component>
+        <span slot="header">Login</span>
+        <span slot="body">
+           <form>
+        <field-component
+            type="text"
+            placeholder="Enter your name"
+            default-value="John Doe"
+        >
+            <span slot="label">Name</span>
+            <span slot="start-element">@</span>
+            <span slot="error-text">Invalid name</span>
+            <span slot="helper-text">Your real name</span>
+        </field-component>
+
+        <field-component
+            type="password"
+            placeholder="Enter your password"
+            default-value="password123"
+        >
+            <span slot="label">Password</span>
+<!--            <span slot="start-element">*</span>-->
+<!--            <span slot="end-element">*</span>-->
+            <span slot="error-text">Invalid password</span>
+            <span slot="helper-text">Your real password</span>
+        </field-component>
+    </form>
+        </span>
+      <span slot="footer">
+        <button-component variant="primary">Login</button-component>
+      </span>
+    </card-component>
+
 
     <create-post></create-post>
 
