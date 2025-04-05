@@ -34,17 +34,16 @@
   --transition: 0.2s ease;
 
   /* shadows */
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  --shadow-md:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 5%);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 10%);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 10%), 0 2px 4px -1px rgb(0 0 0 / 6%);
   --shadow-lg:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    0 10px 15px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%);
   --shadow-xl:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-  --shadow-outline: 0 0 0 3px hsl(var(--ring) / 0.5);
+    0 20px 25px -5px rgb(0 0 0 / 10%), 0 10px 10px -5px rgb(0 0 0 / 4%);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 25%);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 6%);
+  --shadow-outline: 0 0 0 2px hsl(var(--ring) / 50%);
   --shadow-none: none;
 
   /* breakpoints */
@@ -69,21 +68,24 @@
 
   /* spacing */
   --spacing: 0.125rem;
-  --spacing-step: 0.125rem;
+  --spacing-step: 0.2rem;
   --spacing-2xs: calc(var(--spacing));
   --spacing-xs: calc(var(--spacing) + var(--spacing-step));
   --spacing-sm: calc(var(--spacing) + var(--spacing-step) * 2);
   --spacing-md: calc(var(--spacing) + var(--spacing-step) * 3);
   --spacing-lg: calc(var(--spacing) + var(--spacing-step) * 4);
   --spacing-xl: calc(var(--spacing) + var(--spacing-step) * 5);
+  --spacing-2xl: calc(var(--spacing) + var(--spacing-step) * 6);
 
   /* radius */
   --radius: 0.25rem;
-  --radius-step: 0.25rem;
+  --radius-step: 0.5rem;
   --radius-sm: calc(var(--radius));
   --radius-md: calc(var(--radius) + var(--radius-step));
   --radius-lg: calc(var(--radius) + var(--radius-step) * 2);
   --radius-xl: calc(var(--radius) + var(--radius-step) * 3);
+  --radius-2xl: calc(var(--radius) + var(--radius-step) * 4);
+  --radius-full: 9999px;
 
   /* filters */
   --backdrop-blur: 10px;

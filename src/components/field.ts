@@ -1,4 +1,12 @@
-class FieldComponent extends HTMLElement {
+const typeRegexMap: Record<string, RegExp> = {
+  email: /^[^@]+@[^@]+\.[^@]+$/,
+  number: /^\d+$/,
+  text: /^.*$/,
+  url: /^(https?:\/\/)?([\w\d-]+\.)+[\w-]+(\/.*)?$/,
+  tel: /^\+?\d{7,15}$/,
+};
+
+export default class Field extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
@@ -6,13 +14,13 @@ class FieldComponent extends HTMLElement {
       <style>
         :host {
           display: block;
-          border-radius: var(--radius-lg);
+          border-radius: var(--radius-md);
           padding: var(--spacing-xl);
           background: transparent;
           transition: background-color 0.15s ease;
         }
         :host(:focus-within) {
-          background: hsl(var(--ring) / 0.1);
+          background: hsl(var(--ring) / 0.05);
         }
         label {
           font-weight: var(--font-medium);
@@ -24,7 +32,7 @@ class FieldComponent extends HTMLElement {
           display: flex;
           align-items: center;
           border-radius: var(--radius-md);
-          padding: var(--spacing-xs);
+          padding: var(--spacing-sm);
           font-size: var(--text-base);
           background: hsl(var(--input));
         }
@@ -114,28 +122,19 @@ class FieldComponent extends HTMLElement {
 
     const label = this.shadowRoot.querySelector("label");
     const slot = label.querySelector("slot");
-    const labelName = slot
-      .assignedNodes()[0]
-      .textContent.toLocaleLowerCase()
-      .split(" ")
-      .join("-");
-    input.setAttribute("id", labelName);
-    label.setAttribute("for", labelName);
+    const labelText = slot.assignedNodes()?.[0]?.textContent ?? "";
+    const labelId = labelText.toLowerCase().replace(/\s+/g, "-");
+
+    input.setAttribute("id", labelId);
+    label.setAttribute("for", labelId);
   }
 
   validate() {
-    const typeRegexMap = {
-      email: /^[^@]+@[^@]+\.[^@]+$/,
-      number: /^\d+$/,
-      text: /^.*$/,
-      url: /^(https?:\/\/)?([\w\d-]+\.)+[\w-]+(\/.*)?$/,
-      tel: /^\+?\d{7,15}$/,
-    };
     const customRegex = this.getAttribute("regex");
-    const inputType = this.getAttribute("type") || "text";
+    const type = this.getAttribute("type") || "text";
     const regex = customRegex
       ? new RegExp(customRegex)
-      : typeRegexMap[inputType] || /.*/;
+      : typeRegexMap[type] || /.*/;
 
     const input = this.shadowRoot.querySelector("input");
     const isValid = regex.test(input.value);
@@ -145,12 +144,6 @@ class FieldComponent extends HTMLElement {
 
   toggleValidation(className, condition) {
     const group = this.shadowRoot.querySelector(".group");
-    if (condition) {
-      group.classList.add(className);
-    } else {
-      group.classList.remove(className);
-    }
+    group.classList.toggle(className, condition);
   }
 }
-
-customElements.define("field-component", FieldComponent);

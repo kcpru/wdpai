@@ -1,104 +1,104 @@
-class ButtonComponent extends HTMLElement {
+export default class ButtonComponent extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
     this.shadowRoot.innerHTML = `
       <style>
-        :host {
-            display: inline-block;
-        }
+        :host { }
+
         button {
-          padding: 10px 20px;
-            border: none;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            outline: none;
-            font-family: inherit;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 var(--spacing-sm);
+          border-radius: var(--radius-md);
+          cursor: pointer;
+          outline: none;
+          font-family: inherit;
+          height: 2rem;
+          border: 1px solid transparent;
+          transition: 0.15s ease;
         }
+        
+        :host(:not(:has(y-icon))) button {
+          padding: 0 var(--spacing-xl);
+        }
+        
+        :host(:not([icon-only])) ::slotted(y-icon) {
+          margin-right: var(--spacing-sm);
+        }
+
         button.primary {
-            background-color: #007bff;
-            color: white;
+          background-color: hsl(var(--secondary-foreground));
+          color: hsl(var(--secondary));
         }
+
         button.secondary {
-            background-color: #6c757d;
-            color: white;
+          background-color: hsl(var(--secondary));
+          color: hsl(var(--secondary-foreground));
         }
-        button.success {
-            background-color: #28a745;
-            color: white;
+
+        button.outline {
+          background-color: transparent;
+          color: hsl(var(--secondary-foreground));
+          border: 1px solid hsl(var(--border));
         }
-        button.danger {
-            background-color: #c84259;
-            color: white;
+        
+        button:not([disabled]).outline:hover {
+          background-color: hsl(var(--secondary));
         }
-        button.warning {
-            background-color: #ffc107;
-            color: white;
+
+        button.ghost {
+          background-color: transparent;
+          color: hsl(var(--secondary-foreground));
         }
-        button.info {
-            background-color: #17a2b8;
-            color: white;
+
+        button:not([disabled]).ghost:hover {
+          background-color: hsl(var(--secondary));
+          border: 1px solid hsl(var(--border));
         }
-        button:not([disabled]):hover {
-            filter: brightness(1.1);
+
+        button.icon-only {
+          aspect-ratio: 1/1;
+          padding: 0;
         }
-        button:not([disabled]):active {
-            filter: brightness(0.9);
-        }
+
         button:focus-visible {
-            box-shadow: var(--shadow-outline);
+          box-shadow: var(--shadow-outline);
         }
+
         button:disabled {
-            opacity: 0.6;
-            color: #6c757d;
-            cursor: not-allowed;
+          opacity: 0.6;
+          /*background-color: hsl(var(--muted));*/
+          /*color: hsl(var(--muted-foreground));*/
+          cursor: not-allowed;
         }
       </style>
       <button class="primary">
-              <slot></slot>
+        <slot name="icon"></slot>
+        <slot></slot>
       </button>
     `;
   }
 
   static get observedAttributes() {
-    return ["variant", "disabled"];
+    return ["variant", "disabled", "icon-only"];
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
     const button = this.shadowRoot.querySelector("button");
-    button.className = newValue;
+    const tooltip = this.shadowRoot.querySelector("#tooltip");
+
     if (name === "variant") {
-      button.classList.remove(oldValue);
-      button.classList.add(newValue);
-    }
-    if (name === "disabled") {
-      if (newValue !== null) {
-        button.disabled = true;
-      } else {
-        button.disabled = false;
-      }
-    }
-  }
-
-  get variant() {
-    return this.getAttribute("variant");
-  }
-
-  set variant(value) {
-    this.setAttribute("variant", value);
-  }
-
-  get disabled() {
-    return this.hasAttribute("disabled");
-  }
-
-  set disabled(value) {
-    if (value) {
-      this.setAttribute("disabled", "");
-    } else {
-      this.removeAttribute("disabled");
+      button.className = newValue;
+    } else if (name === "disabled") {
+      newValue !== null
+        ? button.setAttribute("disabled", "")
+        : button.removeAttribute("disabled");
+    } else if (name === "icon-only") {
+      newValue !== null
+        ? button.classList.add("icon-only")
+        : button.classList.remove("icon-only");
     }
   }
 }
-
-customElements.define("button-component", ButtonComponent);

@@ -1,18 +1,43 @@
-class CreatePost extends HTMLElement {
+import { toaster } from "../utlis/toaster";
+
+export default class CreatePost extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+
+    const actions = [
+      { icon: "image", text: "Add image" },
+      { icon: "video", text: "Add video" },
+      { icon: "link", text: "Add link" },
+      { icon: "emoji", text: "Add emoji" },
+      { icon: "poll", text: "Create poll" },
+      { icon: "location", text: "Add location" },
+    ];
+
+    const actionButtons = actions
+      .map(
+        ({ icon, text }) => `
+        <y-tooltip text="${text}">
+          <y-button variant="ghost" icon-only aria-label="${text}">
+            <y-icon icon="${icon}"></y-icon>
+          </y-button>
+        </y-tooltip>
+      `,
+      )
+      .join("");
+
     this.shadowRoot.innerHTML = `
       <style>
         :host {
+          box-sizing: border-box;
           display: flex;
           flex-direction: column;
           padding: var(--spacing-md);
-          box-shadow: var(--shadow-md);
           gap: var(--spacing-md);
           background: hsl(var(--card));
           color: hsl(var(--card-foreground));
-          border-radius: var(--radius-xl);
+          border-radius: var(--radius-lg);
+          border: 1px solid hsl(var(--border));
         }
         form {
           display: flex;
@@ -20,30 +45,96 @@ class CreatePost extends HTMLElement {
           gap: var(--spacing-md);
         }
         h1 {
-          font-size: var(--text-xl);
-          font-weight: var(--font-semibold);
           padding: 0;
           margin: 0;
+          font-size: var(--text-xl);
+          font-weight: var(--font-semibold);
         }
         #content {
+          box-sizing: border-box;
           padding: var(--spacing-md);
-          border: 1px solid #ced4da;
-          border-radius: 5px;
-          width: calc(100% - 2 * var(--spacing-md));
+          border-radius: var(--radius-md);
+          width:100% ;
+          height: 5rem;
+        	font-size: var(--text-xl);
+          border: 1px solid hsl(var(--border));
+          background-color: hsl(var(--secondary));
+        }
+        [contenteditable=true]:empty:before{
+          content: attr(data-placeholder);
+          pointer-events: none;
+          display: block; 
+          color: hsl(var(--muted-foreground));
         }
         #content:focus-visible {
           box-shadow: var(--shadow-outline);
           outline: none;
         }
+        .footer {
+          display: flex;
+          justify-content: space-between;
+        }
+        .actions {
+        	display: flex;
+				}
       </style>
 
-      <h1>Create a new post</h1>
       <form>
-        <div contenteditable="true" id="content" name="content" required></div>
-        <button-component variant="primary">Post</button-component>
+        <div contenteditable="true" id="content" data-placeholder="What's happening?"></div>
+        <div class="footer">
+        	<div class="actions">${actionButtons}</div>
+        	<y-button id="post" variant="primary" disabled>Post</y-button>
+        </div>
       </form>
     `;
   }
-}
 
-customElements.define("create-post", CreatePost);
+  postPromise() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const isSuccess = Math.random() > 0.5;
+        if (isSuccess) {
+          resolve("Post created successfully");
+        } else {
+          reject("Error creating post");
+        }
+      }, 2000);
+    });
+  }
+
+  connectedCallback() {
+    this.shadowRoot.getElementById("post")?.addEventListener("click", () => {
+      const content = this.shadowRoot.getElementById("content")?.innerText;
+      if (!content) {
+        toaster.create({
+          title: "Error",
+          description: "Please enter some content",
+          type: "error",
+        });
+        return;
+      }
+
+      toaster.create({
+        title: "Please wait",
+        description: "Posting...",
+        type: "loading",
+      });
+
+      this.postPromise()
+        .then(() => {
+          toaster.create({
+            title: "Success",
+            description: "Post created successfully",
+            type: "success",
+          });
+        })
+        .catch(() => {
+          toaster.create({
+            title: "Error",
+            description: "There was an error creating the post",
+            type: "error",
+          });
+        });
+    });
+  }
+}

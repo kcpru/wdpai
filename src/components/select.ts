@@ -1,4 +1,4 @@
-class SelectComponent extends HTMLElement {
+export default class Select extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
@@ -75,5 +75,3 @@ class SelectComponent extends HTMLElement {
     }
   }
 }
-
-customElements.define("select-component", SelectComponent);

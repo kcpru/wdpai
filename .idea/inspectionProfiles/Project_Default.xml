@@ -1,10 +1,11 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
     <option name="myName" value="Project Default" />
+    <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="HtmlUnknownTag" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="9">
+          <list size="18">
             <item index="0" class="java.lang.String" itemvalue="nobr" />
             <item index="1" class="java.lang.String" itemvalue="noembed" />
             <item index="2" class="java.lang.String" itemvalue="comment" />
@@ -14,10 +15,23 @@
             <item index="6" class="java.lang.String" itemvalue="button-component" />
             <item index="7" class="java.lang.String" itemvalue="field-component" />
             <item index="8" class="java.lang.String" itemvalue="create-post" />
+            <item index="9" class="java.lang.String" itemvalue="y-create-post" />
+            <item index="10" class="java.lang.String" itemvalue="y-main-layout" />
+            <item index="11" class="java.lang.String" itemvalue="y-card" />
+            <item index="12" class="java.lang.String" itemvalue="y-field" />
+            <item index="13" class="java.lang.String" itemvalue="y-button" />
+            <item index="14" class="java.lang.String" itemvalue="y-icon" />
+            <item index="15" class="java.lang.String" itemvalue="y-toogle-tip" />
+            <item index="16" class="java.lang.String" itemvalue="y-toggle-tip" />
+            <item index="17" class="java.lang.String" itemvalue="y-post" />
           </list>
         </value>
       </option>
       <option name="myCustomValuesEnabled" value="true" />
     </inspection_tool>
+    <inspection_tool class="JSHint" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="StandardJS" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="Stylelint" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="TsLint" enabled="true" level="WARNING" enabled_by_default="true" />
   </profile>
 </component>

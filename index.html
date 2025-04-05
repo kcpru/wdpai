@@ -3,56 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Y - x copy</title>
-    <!-- <link rel="stylesheet" type="text/css" href="styles/main.css" /> -->
+    <title>𝕐</title>
   </head>
   <body>
-    <div id="header">
-      <h1>𝕐</h1>
-    </div>
-
-    <!-- Button -->
-    <button-component variant="primary" disabled>Primary</button-component>
-    <button-component variant="secondary">Secondary</button-component>
-    <button-component variant="tertiary">Tertiary</button-component>
-    <button-component variant="danger">Danger</button-component>
-
-    <!-- Login form -->
-    <card-component>
-        <span slot="header">Login</span>
-        <span slot="body">
-           <form>
-        <field-component
-            type="text"
-            placeholder="Enter your name"
-            default-value="John Doe"
-        >
-            <span slot="label">Name</span>
-            <span slot="start-element">@</span>
-            <span slot="error-text">Invalid name</span>
-            <span slot="helper-text">Your real name</span>
-        </field-component>
-
-        <field-component
-            type="password"
-            placeholder="Enter your password"
-            default-value="password123"
-        >
-            <span slot="label">Password</span>
-<!--            <span slot="start-element">*</span>-->
-<!--            <span slot="end-element">*</span>-->
-            <span slot="error-text">Invalid password</span>
-            <span slot="helper-text">Your real password</span>
-        </field-component>
-    </form>
-        </span>
-      <span slot="footer">
-        <button-component variant="primary">Login</button-component>
-      </span>
-    </card-component>
-
-
-    <create-post></create-post>
+    <y-main-layout>
+      <y-create-post></y-create-post>
+      <y-post></y-post>
+    </y-main-layout>
 
     <script type="module" src="src/main.ts"></script>
   </body>
