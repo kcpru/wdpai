@@ -6,6 +6,7 @@ export default class MainLayout extends HTMLElement {
 
   connectedCallback() {
     this.render();
+    this.addEventListeners();
   }
 
   render() {
@@ -13,6 +14,9 @@ export default class MainLayout extends HTMLElement {
       { icon: "home", label: "Home" },
       { icon: "search", label: "Search" },
       { icon: "bell", label: "Notifications" },
+      { icon: "bookmark", label: "Bookmarks" },
+      { icon: "stars", label: "Mrok AI" },
+      { icon: "settings", label: "Settings" },
     ];
 
     const actionButtons = actions
@@ -39,21 +43,39 @@ export default class MainLayout extends HTMLElement {
           gap: var(--spacing-xl);
         }
         main {
-          flex: 1;
-          padding: var(--spacing-xl);
+          position: relative;
+          display: flex;
+          width: 100%;
+          background: hsl(var(--secondary));
           border-radius: var(--radius-xl);
+          border: 1px solid hsl(var(--border));
+          overflow: hidden;
+        }
+        #content {
+          padding: var(--spacing-xl);
+          flex: 1;
           overflow-y: auto;
           overflow-x: hidden;
           display: flex;
           flex-direction: column;
           align-items: center;
           gap: var(--spacing-xl);
-          background: hsl(var(--secondary));
-          border: 1px solid hsl(var(--border));
+          align-self: stretch;
         }
         ::slotted(*) {
           width: 100%;
           max-width: var(--sm);
+        }
+        #back-to-top {
+          position: absolute;
+          bottom: var(--spacing-xl);
+          left: 50%;
+          z-index: 9999;
+          transform: translateY(200%) translateX(-50%);
+          transition: transform 0.2s ease;
+        }
+        #back-to-top.show {
+          transform: translateY(0) translateX(-50%);
         }
         nav {
           width: 2rem;
@@ -87,19 +109,51 @@ export default class MainLayout extends HTMLElement {
           background: hsl(var(--secondary));
         }
       </style>
+      
       <nav>
         <div id="logo">𝕐</div>
+        
         <div id="actions">${actionButtons}</div>
-        <y-tooltip id="settings" text="Settings" position="right">
-          <y-button variant="outline" icon-only aria-label="Settings">
-            <y-icon icon="settings"></y-icon>
+        
+        <y-tooltip id="panel" text="Expand panel" position="right">
+          <y-button variant="outline" icon-only aria-label="Expand panel">
+            <y-icon icon="left-panel-open"></y-icon>
           </y-button>
         </y-tooltip>
       </nav>
+      
       <main>
-        <slot></slot>
+        <div id="content">
+          <slot></slot>
+        </div>  
+        
+        <y-tooltip id="back-to-top" text="Back to top">
+          <y-button variant="outline" icon-only aria-label="Back to top">
+            <y-icon icon="arrow-upward"></y-icon>
+          </y-button>
+        </y-tooltip>
       </main>
+      
       <aside></aside>
     `;
+  }
+
+  addEventListeners() {
+    const content = this.shadowRoot.getElementById("content");
+    const backToTopButton = this.shadowRoot.querySelector("#back-to-top");
+    backToTopButton.addEventListener("click", () => {
+      content.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    });
+
+    content.addEventListener("scroll", () => {
+      if (content.scrollTop > 0) {
+        backToTopButton.classList.add("show");
+      } else {
+        backToTopButton.classList.remove("show");
+      }
+    });
   }
 }

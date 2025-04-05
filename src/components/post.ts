@@ -58,20 +58,31 @@ export default class Post extends HTMLElement {
 				</div>
 				
 				<div id="actions">
-					<y-button variant="ghost" aria-label="Like">
-						<y-icon icon="heart"></y-icon>
-						17.3k
-					</y-button>
-					<y-button variant="ghost" aria-label="Comments">
-						<y-icon icon="comments"></y-icon>
-						386
-					</y-button>
-					<y-button variant="ghost" icon-only aria-label="Share">
-						<y-icon icon="share"></y-icon>
-					</y-button>
-					<y-button variant="ghost" icon-only aria-label="Save">
-						<y-icon icon="bookmark"></y-icon>
-					</y-button>
+          <y-tooltip text="Like" position="bottom">
+            <y-button variant="ghost" aria-label="Like">
+              <y-icon icon="heart"></y-icon>
+              17.3k
+            </y-button>
+					</y-tooltip>  
+					
+					<y-tooltip text="See comments" position="bottom">
+            <y-button variant="ghost" aria-label="Comments">
+              <y-icon icon="comments"></y-icon>
+              386
+            </y-button>
+					</y-tooltip>
+					
+					<y-tooltip text="Share" position="bottom">
+            <y-button variant="ghost" icon-only aria-label="Share">
+              <y-icon icon="share"></y-icon>
+            </y-button>
+					</y-tooltip>
+					
+					<y-tooltip text="Save" position="bottom">
+            <y-button variant="ghost" icon-only aria-label="Save">
+              <y-icon icon="bookmark"></y-icon>
+            </y-button>
+					</y-tooltip>
 				</div>
 			`;
   }

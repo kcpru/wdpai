@@ -54,11 +54,14 @@ export default class CreatePost extends HTMLElement {
           box-sizing: border-box;
           padding: var(--spacing-md);
           border-radius: var(--radius-md);
-          width:100% ;
-          height: 5rem;
+          width: 100%;
+          min-height: 5rem;
+          max-height: 15rem;
         	font-size: var(--text-xl);
           border: 1px solid hsl(var(--border));
           background-color: hsl(var(--secondary));
+          transition: height 1s ease;
+          overflow-y: auto;
         }
         [contenteditable=true]:empty:before{
           content: attr(data-placeholder);

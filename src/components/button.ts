@@ -39,7 +39,7 @@ export default class ButtonComponent extends HTMLElement {
         }
 
         button.outline {
-          background-color: transparent;
+          background-color: hsl(var(--background));
           color: hsl(var(--secondary-foreground));
           border: 1px solid hsl(var(--border));
         }
