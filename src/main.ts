@@ -13,6 +13,8 @@ import Tooltip from "./components/tooltip";
 import ToggleTip from "./components/toggle-tip";
 import Toast from "./components/toast";
 import Post from "./components/post";
+import ProfileLayout from "./components/profile-layout";
+import MrokAi from "./components/mrok-ai";
 
 customElements.define(`${WC_PREFIX}-main-layout`, MainLayout);
 customElements.define(`${WC_PREFIX}-button`, Button);
@@ -25,6 +27,8 @@ customElements.define(`${WC_PREFIX}-tooltip`, Tooltip);
 customElements.define(`${WC_PREFIX}-toggle-tip`, ToggleTip);
 customElements.define(`${WC_PREFIX}-toast`, Toast);
 customElements.define(`${WC_PREFIX}-post`, Post);
+customElements.define(`${WC_PREFIX}-profile-layout`, ProfileLayout);
+customElements.define(`${WC_PREFIX}-mrok-ai`, MrokAi);
 
 // import "./image.js"; - lazy loading, zoomable, etc.
 // import "./textarea.js";

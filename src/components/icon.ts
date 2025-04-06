@@ -7,10 +7,10 @@ export default class Icon extends HTMLElement {
     this.shadowRoot.innerHTML = `
 			<style>
 				:host {
-				box-sizing: border-box;
+          box-sizing: border-box;
 					display: block;
-					width: var(--icon-size, var(--text-base));
-					height: var(--icon-size, var(--text-base));
+					width: var(--size, var(--text-base));
+					height: var(--size, var(--text-base));
 				}
 				:host([hidden]) {
 					display: none;

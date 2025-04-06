@@ -72,10 +72,10 @@
   --spacing-2xs: calc(var(--spacing));
   --spacing-xs: calc(var(--spacing) + var(--spacing-step));
   --spacing-sm: calc(var(--spacing) + var(--spacing-step) * 2);
-  --spacing-md: calc(var(--spacing) + var(--spacing-step) * 3);
-  --spacing-lg: calc(var(--spacing) + var(--spacing-step) * 4);
-  --spacing-xl: calc(var(--spacing) + var(--spacing-step) * 5);
-  --spacing-2xl: calc(var(--spacing) + var(--spacing-step) * 6);
+  --spacing-md: calc(var(--spacing) + var(--spacing-step) * 4);
+  --spacing-lg: calc(var(--spacing) + var(--spacing-step) * 6);
+  --spacing-xl: calc(var(--spacing) + var(--spacing-step) * 8);
+  --spacing-2xl: calc(var(--spacing) + var(--spacing-step) * 10);
 
   /* radius */
   --radius: 0.25rem;
@@ -90,8 +90,8 @@
   /* filters */
   --backdrop-blur: 10px;
 
-  @media (prefers-color-scheme: light) {
-    --background: 222.2 84% 4.9%;
+  @media (prefers-color-scheme: dark) {
+    --background: 222 50% 5%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
@@ -99,7 +99,7 @@
     --popover-foreground: 210 40% 98%;
     --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 222 50% 8%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;

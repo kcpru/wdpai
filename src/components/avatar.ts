@@ -5,6 +5,8 @@ export default class Avatar extends HTMLElement {
     this.shadowRoot.innerHTML = `
 			<style>
 				:host {
+				  --avatar-size: var(--text-base);
+				  background-color: var(--foreground);
 					box-sizing: border-box;
 					display: block;
 					width: var(--avatar-size, var(--text-base));

@@ -18,6 +18,7 @@ export default class ButtonComponent extends HTMLElement {
           height: 2rem;
           border: 1px solid transparent;
           transition: 0.15s ease;
+          white-space: nowrap;
         }
         
         :host(:not(:has(y-icon))) button {
@@ -26,6 +27,10 @@ export default class ButtonComponent extends HTMLElement {
         
         :host(:not([icon-only])) ::slotted(y-icon) {
           margin-right: var(--spacing-sm);
+        }
+        
+        :host([icon-only]) slot:not([name="icon"]) {
+            display: none;
         }
 
         button.primary {

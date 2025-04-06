@@ -24,7 +24,8 @@ export default class MainLayout extends HTMLElement {
         ({ icon, label }) => `
         <y-tooltip text="${label}" position="right">
           <y-button variant="outline" icon-only aria-label="${label}">
-            <y-icon icon="${icon}"></y-icon>
+            <y-icon icon="${icon}" slot="icon"></y-icon>
+            ${label}
           </y-button>
         </y-tooltip>
       `,
@@ -63,8 +64,6 @@ export default class MainLayout extends HTMLElement {
           align-self: stretch;
         }
         ::slotted(*) {
-          width: 100%;
-          max-width: var(--sm);
         }
         #back-to-top {
           position: absolute;
@@ -72,17 +71,21 @@ export default class MainLayout extends HTMLElement {
           left: 50%;
           z-index: 9999;
           transform: translateY(200%) translateX(-50%);
-          transition: transform 0.2s ease;
+          transition: transform 0.2s cubic-bezier(.3,0,.3,1);
         }
         #back-to-top.show {
           transform: translateY(0) translateX(-50%);
         }
         nav {
-          width: 2rem;
+          width: var(--spacing-2xl);
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           gap: var(--spacing-lg);
+          transition: width 0.2s cubic-bezier(.3,0,.3,1);
+        }
+        nav.open {
+          width: 10rem;
         }
         #logo {
           font-size: var(--text-2xl);
@@ -91,14 +94,11 @@ export default class MainLayout extends HTMLElement {
           justify-content: center;
           align-items: center;
           color: hsl(var(--foreground));
-          text-align: center;
-          text-decoration: none;
-          cursor: pointer;
-          transition: 0.2s ease;
         }
         #actions {
           display: flex;
           flex-direction: column;
+          align-items: flex-start;
           gap: var(--spacing-xs);
         }
         aside {
@@ -110,14 +110,15 @@ export default class MainLayout extends HTMLElement {
         }
       </style>
       
-      <nav>
+      <nav id="panel" data-open="false">
         <div id="logo">𝕐</div>
         
         <div id="actions">${actionButtons}</div>
         
-        <y-tooltip id="panel" text="Expand panel" position="right">
-          <y-button variant="outline" icon-only aria-label="Expand panel">
-            <y-icon icon="left-panel-open"></y-icon>
+        <y-tooltip text="Expand panel" position="right">
+          <y-button id="toggle-panel" variant="outline" icon-only aria-label="Expand panel">
+            <y-icon icon="left-panel-open" slot="icon"></y-icon>
+            Collapse panel
           </y-button>
         </y-tooltip>
       </nav>
@@ -129,12 +130,12 @@ export default class MainLayout extends HTMLElement {
         
         <y-tooltip id="back-to-top" text="Back to top">
           <y-button variant="outline" icon-only aria-label="Back to top">
-            <y-icon icon="arrow-upward"></y-icon>
+            <y-icon icon="arrow-upward" slot="icon"></y-icon>
           </y-button>
         </y-tooltip>
       </main>
       
-      <aside></aside>
+<!--      <aside></aside>-->
     `;
   }
 
@@ -155,5 +156,42 @@ export default class MainLayout extends HTMLElement {
         backToTopButton.classList.remove("show");
       }
     });
+
+    const toggleButton = this.shadowRoot.getElementById("toggle-panel");
+    toggleButton.addEventListener("click", () => {
+      this.togglePanel();
+    });
+  }
+
+  togglePanel() {
+    const panel = this.shadowRoot.getElementById("panel");
+    const isOpen = panel.getAttribute("data-open") === "true";
+    const icon = this.shadowRoot.querySelector("#toggle-panel y-icon");
+    panel.setAttribute("data-open", `${!isOpen}`);
+    if (isOpen) {
+      panel.classList.remove("open");
+      panel.setAttribute("aria-expanded", "false");
+      icon.setAttribute("icon", "left-panel-open");
+      this.shadowRoot
+        .querySelector("#toggle-panel")
+        .setAttribute("icon-only", "");
+      this.shadowRoot
+        .querySelectorAll("#actions y-button")
+        .forEach((button) => {
+          button.setAttribute("icon-only", "");
+        });
+    } else {
+      panel.classList.add("open");
+      panel.setAttribute("aria-expanded", "true");
+      icon.setAttribute("icon", "left-panel-close");
+      this.shadowRoot
+        .querySelector("#toggle-panel")
+        .removeAttribute("icon-only");
+      this.shadowRoot
+        .querySelectorAll("#actions y-button")
+        .forEach((button) => {
+          button.removeAttribute("icon-only");
+        });
+    }
   }
 }

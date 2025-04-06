@@ -19,7 +19,7 @@ export default class CreatePost extends HTMLElement {
         ({ icon, text }) => `
         <y-tooltip text="${text}">
           <y-button variant="ghost" icon-only aria-label="${text}">
-            <y-icon icon="${icon}"></y-icon>
+            <y-icon icon="${icon}" slot="icon"></y-icon>
           </y-button>
         </y-tooltip>
       `,
@@ -38,17 +38,13 @@ export default class CreatePost extends HTMLElement {
           color: hsl(var(--card-foreground));
           border-radius: var(--radius-lg);
           border: 1px solid hsl(var(--border));
+          width: 100%;
+          max-width: var(--sm);
         }
         form {
           display: flex;
           flex-direction: column;
           gap: var(--spacing-md);
-        }
-        h1 {
-          padding: 0;
-          margin: 0;
-          font-size: var(--text-xl);
-          font-weight: var(--font-semibold);
         }
         #content {
           box-sizing: border-box;

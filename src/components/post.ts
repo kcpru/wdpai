@@ -12,6 +12,8 @@ export default class Post extends HTMLElement {
 					color: hsl(var(--card-foreground));
 					border-radius: var(--radius-lg);
 					border: 1px solid hsl(var(--border));
+          width: 100%;
+          max-width: var(--sm);
 				}
 			
 				.header {
@@ -46,7 +48,7 @@ export default class Post extends HTMLElement {
 				}
 				</style>
 				<div class="header">
-					<div id="avatar"></div>
+					<y-avatar src="https://fastly.picsum.photos/id/866/200/300.jpg"></y-avatar>
 					<div id="username">Username</div>
 					<div id="timestamp">Timestamp</div>
 				</div>
@@ -60,27 +62,27 @@ export default class Post extends HTMLElement {
 				<div id="actions">
           <y-tooltip text="Like" position="bottom">
             <y-button variant="ghost" aria-label="Like">
-              <y-icon icon="heart"></y-icon>
+              <y-icon icon="heart" slot="icon"></y-icon>
               17.3k
             </y-button>
 					</y-tooltip>  
 					
 					<y-tooltip text="See comments" position="bottom">
             <y-button variant="ghost" aria-label="Comments">
-              <y-icon icon="comments"></y-icon>
+              <y-icon icon="comments" slot="icon"></y-icon>
               386
             </y-button>
 					</y-tooltip>
 					
 					<y-tooltip text="Share" position="bottom">
             <y-button variant="ghost" icon-only aria-label="Share">
-              <y-icon icon="share"></y-icon>
+              <y-icon icon="share" slot="icon"></y-icon>
             </y-button>
 					</y-tooltip>
 					
 					<y-tooltip text="Save" position="bottom">
             <y-button variant="ghost" icon-only aria-label="Save">
-              <y-icon icon="bookmark"></y-icon>
+              <y-icon icon="bookmark" slot="icon"></y-icon>
             </y-button>
 					</y-tooltip>
 				</div>
