@@ -28,7 +28,7 @@ export default class MainLayout extends HTMLElement {
             ${label}
           </y-button>
         </y-tooltip>
-      `,
+      `
       )
       .join("");
 
@@ -134,8 +134,6 @@ export default class MainLayout extends HTMLElement {
           </y-button>
         </y-tooltip>
       </main>
-      
-<!--      <aside></aside>-->
     `;
   }
 

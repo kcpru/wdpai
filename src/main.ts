@@ -2,19 +2,25 @@ import { WC_PREFIX } from "./constants/config";
 
 import "./styles.css";
 
-import MainLayout from "./components/main-layout";
-import Button from "./components/button";
-import Field from "./components/field";
-import CreatePost from "./components/create-post";
-import Select from "./components/select";
-import Card from "./components/card";
-import Icon from "./components/icon";
-import Tooltip from "./components/tooltip";
-import ToggleTip from "./components/toggle-tip";
-import Toast from "./components/toast";
-import Post from "./components/post";
-import ProfileLayout from "./components/profile-layout";
-import MrokAi from "./components/mrok-ai";
+import "./router";
+import { render } from "./router";
+
+window.addEventListener("DOMContentLoaded", () => {
+  render(location.pathname);
+});
+
+import MainLayout from "./components/layout/main-layout";
+import Button from "./components/shared/button";
+import Field from "./components/shared/field";
+import CreatePost from "./components/shared/create-post";
+import Select from "./components/shared/select";
+import Card from "./components/shared/card";
+import Icon from "./components/shared/icon";
+import Tooltip from "./components/shared/tooltip";
+import ToggleTip from "./components/shared/toggle-tip";
+import Toast from "./components/shared/toast";
+import Post from "./components/shared/post";
+import ProfileLayout from "./components/layout/profile-layout";
 
 customElements.define(`${WC_PREFIX}-main-layout`, MainLayout);
 customElements.define(`${WC_PREFIX}-button`, Button);
@@ -28,7 +34,6 @@ customElements.define(`${WC_PREFIX}-toggle-tip`, ToggleTip);
 customElements.define(`${WC_PREFIX}-toast`, Toast);
 customElements.define(`${WC_PREFIX}-post`, Post);
 customElements.define(`${WC_PREFIX}-profile-layout`, ProfileLayout);
-customElements.define(`${WC_PREFIX}-mrok-ai`, MrokAi);
 
 // import "./image.js"; - lazy loading, zoomable, etc.
 // import "./textarea.js";

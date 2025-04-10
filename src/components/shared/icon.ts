@@ -1,4 +1,4 @@
-import { icons } from "../constants/icons";
+import { icons } from "../../constants/icons";
 
 export default class Icon extends HTMLElement {
   constructor() {

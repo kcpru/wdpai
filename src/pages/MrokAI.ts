@@ -16,7 +16,7 @@ export default class MrokAi extends HTMLElement {
         <y-button variant="ghost" icon-only aria-label="${text}" disabled>
           <y-icon icon="${icon}" slot="icon"></y-icon>
         </y-button>
-      `,
+      `
       )
       .join("");
 
@@ -191,3 +191,5 @@ export default class MrokAi extends HTMLElement {
 		`;
   }
 }
+
+customElements.define("y-mrok-ai", MrokAi);

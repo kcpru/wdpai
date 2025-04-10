@@ -50,7 +50,7 @@ export const toaster = {
       success?: { title?: string; description?: string };
       error?: { title?: string; description?: string };
       loading?: { title?: string; description?: string };
-    },
+    }
   ) => {
     const { success, error, loading } = options;
 

@@ -1,4 +1,4 @@
-import { toaster } from "../utlis/toaster";
+import { toaster } from "../../utlis/toaster";
 
 export default class CreatePost extends HTMLElement {
   constructor() {
@@ -22,7 +22,7 @@ export default class CreatePost extends HTMLElement {
             <y-icon icon="${icon}" slot="icon"></y-icon>
           </y-button>
         </y-tooltip>
-      `,
+      `
       )
       .join("");
 
