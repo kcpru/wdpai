@@ -1,8 +1,9 @@
-export default class ButtonComponent extends HTMLElement {
+import { ShadowComponent } from "../../utils/shadow-component";
+
+export default class ButtonComponent extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
+    this.html`
       <style>
         :host { }
 
@@ -90,9 +91,19 @@ export default class ButtonComponent extends HTMLElement {
     return ["variant", "disabled", "icon-only"];
   }
 
+  connectedCallback() {
+    const button = this.root?.querySelector("button");
+    if (!button) return;
+
+    button.addEventListener("click", (e) => {
+      if (this.hasAttribute("disabled")) return;
+      this.dispatchEvent(new Event("click", { bubbles: true }));
+    });
+  }
+
   attributeChangedCallback(name, oldValue, newValue) {
-    const button = this.shadowRoot.querySelector("button");
-    const tooltip = this.shadowRoot.querySelector("#tooltip");
+    const button = this.root?.querySelector("button");
+    if (!button) return;
 
     if (name === "variant") {
       button.className = newValue;

@@ -40,7 +40,7 @@ export const routes: Route[] = [
     component: async () => new (await import("../pages/Register")).default(),
   },
   {
-    path: "mrok",
+    path: "mrok-ai",
     component: async () => new (await import("../pages/MrokAI")).default(),
   },
   {

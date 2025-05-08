@@ -1,7 +1,8 @@
-export default class MrokAi extends HTMLElement {
+import { ShadowComponent } from "../utils/shadow-component";
+
+export default class MrokAi extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
 
     const actions = [
       { icon: "image", text: "Add image" },
@@ -20,7 +21,7 @@ export default class MrokAi extends HTMLElement {
       )
       .join("");
 
-    this.shadowRoot.innerHTML = `
+    this.html`
 			<style>
 				:host {
 					box-sizing: border-box;

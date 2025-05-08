@@ -51,7 +51,9 @@ async function applyMiddleware(path: string, params: Record<string, string>) {
     const result = await fn({ path, params });
     if (!result.allow) {
       history.pushState({}, "", result.redirect);
-      await render(result.redirect);
+      if (result.redirect) {
+        await render(result.redirect);
+      }
       return false;
     }
   }

@@ -1,10 +1,11 @@
 import { icons } from "../../constants/icons";
+import { ShadowComponent } from "../../utils/shadow-component";
 
-export default class Icon extends HTMLElement {
+export default class Icon extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
+
+    this.html`
 			<style>
 				:host {
           box-sizing: border-box;
@@ -29,7 +30,7 @@ export default class Icon extends HTMLElement {
   }
 
   renderIcon(icon: string) {
-    const iconElement = this.shadowRoot!.querySelector("#icon")!;
+    const iconElement = this.qs("#icon")!;
     iconElement.innerHTML = icons[icon] ?? "";
   }
 }

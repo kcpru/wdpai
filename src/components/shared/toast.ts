@@ -1,8 +1,10 @@
-export default class Toast extends HTMLElement {
+import { ShadowComponent } from "../../utils/shadow-component";
+
+export default class Toast extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
+
+    this.html`
       <style>
         :host {
           position: fixed;
@@ -25,7 +27,7 @@ export default class Toast extends HTMLElement {
         .toast.show {
           opacity: 1;
           transform: translateY(0);
-        }}
+        }
       </style>
       <div class="toast">
         <h4 id="title"></h4>
@@ -40,15 +42,14 @@ export default class Toast extends HTMLElement {
   }
 
   render() {
-    const title = this.getAttribute("title");
-    const description = this.getAttribute("description");
-    const type = this.getAttribute("type");
+    const title = this.attr("title");
+    const description = this.attr("description");
+    const type = this.attr("type");
 
-    (this.shadowRoot.querySelector("#title") as HTMLElement).innerText = title;
-    (this.shadowRoot.querySelector("#description") as HTMLElement).innerText =
-      description;
+    this.qs<HTMLDivElement>("#title").innerText = title ?? "";
+    this.qs<HTMLDivElement>("#description").innerText = description ?? "";
 
-    const toastElement = this.shadowRoot.querySelector(".toast") as HTMLElement;
+    const toastElement = this.root.querySelector(".toast") as HTMLElement;
 
     if (type === "success") {
       toastElement.style.backgroundColor = "green";
@@ -60,7 +61,7 @@ export default class Toast extends HTMLElement {
   }
 
   showToast() {
-    const toastElement = this.shadowRoot.querySelector(".toast") as HTMLElement;
+    const toastElement = this.root.querySelector(".toast") as HTMLElement;
     setTimeout(() => {
       toastElement.classList.add("show");
     }, 50);
@@ -70,7 +71,7 @@ export default class Toast extends HTMLElement {
   }
 
   removeToast() {
-    const toastElement = this.shadowRoot.querySelector(".toast") as HTMLElement;
+    const toastElement = this.root.querySelector(".toast") as HTMLElement;
     toastElement.classList.add("hide");
     console.log("removing toast");
     setTimeout(() => {

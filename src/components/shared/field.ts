@@ -1,3 +1,5 @@
+import { ShadowComponent } from "../../utils/shadow-component";
+
 const typeRegexMap: Record<string, RegExp> = {
   email: /^[^@]+@[^@]+\.[^@]+$/,
   number: /^\d+$/,
@@ -6,11 +8,11 @@ const typeRegexMap: Record<string, RegExp> = {
   tel: /^\+?\d{7,15}$/,
 };
 
-export default class Field extends HTMLElement {
+export default class Field extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
+
+    this.html`
       <style>
         :host {
           display: block;
@@ -104,7 +106,7 @@ export default class Field extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    const input = this.shadowRoot.querySelector("input");
+    const input = this.qs<HTMLInputElement>("input");
     if (name === "type") input.type = newValue;
     if (name === "placeholder") input.placeholder = newValue;
     if (name === "default-value") input.value = newValue;
@@ -116,13 +118,13 @@ export default class Field extends HTMLElement {
   }
 
   connectedCallback() {
-    const input = this.shadowRoot.querySelector("input");
+    const input = this.qs("input");
     input.addEventListener("input", () => this.validate());
     input.addEventListener("blur", () => this.validate());
 
-    const label = this.shadowRoot.querySelector("label");
+    const label = this.qs<HTMLLabelElement>("label");
     const slot = label.querySelector("slot");
-    const labelText = slot.assignedNodes()?.[0]?.textContent ?? "";
+    const labelText = slot!.assignedNodes()?.[0]?.textContent ?? "";
     const labelId = labelText.toLowerCase().replace(/\s+/g, "-");
 
     input.setAttribute("id", labelId);
@@ -136,14 +138,14 @@ export default class Field extends HTMLElement {
       ? new RegExp(customRegex)
       : typeRegexMap[type] || /.*/;
 
-    const input = this.shadowRoot.querySelector("input");
+    const input = this.qs<HTMLInputElement>("input");
     const isValid = regex.test(input.value);
     this.toggleValidation("valid", isValid);
     this.toggleValidation("invalid", !isValid);
   }
 
   toggleValidation(className, condition) {
-    const group = this.shadowRoot.querySelector(".group");
+    const group = this.qs(".group");
     group.classList.toggle(className, condition);
   }
 }

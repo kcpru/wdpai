@@ -1,9 +1,9 @@
 import { WC_PREFIX } from "../../constants/config";
+import { ShadowComponent } from "../../utils/shadow-component";
 
-export default class SettingsSecurityPage extends HTMLElement {
+export default class SettingsSecurityPage extends ShadowComponent {
   connectedCallback() {
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
+    this.html`
       <div>
         <h1>Security Settings</h1>
         <form id="security-settings-form">

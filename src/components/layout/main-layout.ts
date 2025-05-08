@@ -1,38 +1,52 @@
-export default class MainLayout extends HTMLElement {
+import { ShadowComponent } from "../../utils/shadow-component";
+import { render } from "../../router";
+
+export default class MainLayout extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
   }
 
   connectedCallback() {
     this.render();
     this.addEventListeners();
+
+    this.qsa(".action-button").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        const href = (event?.currentTarget as HTMLElement)?.getAttribute(
+          "data-href"
+        );
+        if (href) {
+          history.pushState({}, "", href);
+          render(location.pathname);
+        }
+      });
+    });
   }
 
   render() {
     const actions = [
-      { icon: "home", label: "Home" },
-      { icon: "search", label: "Search" },
-      { icon: "bell", label: "Notifications" },
-      { icon: "bookmark", label: "Bookmarks" },
-      { icon: "stars", label: "Mrok AI" },
-      { icon: "settings", label: "Settings" },
+      { icon: "home", label: "Home", href: "/" },
+      { icon: "search", label: "Search", href: "/search" },
+      { icon: "bell", label: "Notifications", href: "/notifications" },
+      { icon: "bookmark", label: "Bookmarks", href: "/bookmarks" },
+      { icon: "stars", label: "Mrok AI", href: "/mrok-ai" },
+      { icon: "settings", label: "Settings", href: "/settings" },
     ];
 
     const actionButtons = actions
       .map(
-        ({ icon, label }) => `
-        <y-tooltip text="${label}" position="right">
-          <y-button variant="outline" icon-only aria-label="${label}">
-            <y-icon icon="${icon}" slot="icon"></y-icon>
-            ${label}
-          </y-button>
-        </y-tooltip>
-      `
+        ({ icon, label, href }) => `
+          <y-tooltip text="${label}" position="right">
+            <y-button variant="outline" icon-only aria-label="${label}" class="action-button" data-href="${href}">
+              <y-icon icon="${icon}" slot="icon"></y-icon>
+              ${label}
+            </y-button>
+          </y-tooltip>
+        `
       )
       .join("");
 
-    this.shadowRoot.innerHTML = `
+    this.html`
       <style>
         :host {
           margin: var(--spacing-xl);
@@ -62,8 +76,6 @@ export default class MainLayout extends HTMLElement {
           align-items: center;
           gap: var(--spacing-xl);
           align-self: stretch;
-        }
-        ::slotted(*) {
         }
         #back-to-top {
           position: absolute;
@@ -109,12 +121,10 @@ export default class MainLayout extends HTMLElement {
           background: hsl(var(--secondary));
         }
       </style>
-      
+
       <nav id="panel" data-open="false">
         <div id="logo">𝕐</div>
-        
         <div id="actions">${actionButtons}</div>
-        
         <y-tooltip text="Expand panel" position="right">
           <y-button id="toggle-panel" variant="outline" icon-only aria-label="Expand panel">
             <y-icon icon="left-panel-open" slot="icon"></y-icon>
@@ -122,12 +132,11 @@ export default class MainLayout extends HTMLElement {
           </y-button>
         </y-tooltip>
       </nav>
-      
+
       <main>
         <div id="content">
           <slot></slot>
         </div>  
-        
         <y-tooltip id="back-to-top" text="Back to top">
           <y-button variant="outline" icon-only aria-label="Back to top">
             <y-icon icon="arrow-upward" slot="icon"></y-icon>
@@ -138,58 +147,48 @@ export default class MainLayout extends HTMLElement {
   }
 
   addEventListeners() {
-    const content = this.shadowRoot.getElementById("content");
-    const backToTopButton = this.shadowRoot.querySelector("#back-to-top");
-    backToTopButton.addEventListener("click", () => {
-      content.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
+    const content = this.qs("#content");
+    const backToTopButton = this.qs("#back-to-top");
+
+    backToTopButton?.addEventListener("click", () => {
+      content?.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    content.addEventListener("scroll", () => {
+    content?.addEventListener("scroll", () => {
       if (content.scrollTop > 0) {
-        backToTopButton.classList.add("show");
+        backToTopButton?.classList.add("show");
       } else {
-        backToTopButton.classList.remove("show");
+        backToTopButton?.classList.remove("show");
       }
     });
 
-    const toggleButton = this.shadowRoot.getElementById("toggle-panel");
-    toggleButton.addEventListener("click", () => {
+    this.qs("#toggle-panel")?.addEventListener("click", () => {
       this.togglePanel();
     });
   }
 
   togglePanel() {
-    const panel = this.shadowRoot.getElementById("panel");
-    const isOpen = panel.getAttribute("data-open") === "true";
-    const icon = this.shadowRoot.querySelector("#toggle-panel y-icon");
-    panel.setAttribute("data-open", `${!isOpen}`);
+    const panel = this.qs("#panel");
+    const isOpen = panel?.getAttribute("data-open") === "true";
+    const icon = this.qs("#toggle-panel y-icon");
+
+    panel?.setAttribute("data-open", `${!isOpen}`);
     if (isOpen) {
-      panel.classList.remove("open");
-      panel.setAttribute("aria-expanded", "false");
-      icon.setAttribute("icon", "left-panel-open");
-      this.shadowRoot
-        .querySelector("#toggle-panel")
-        .setAttribute("icon-only", "");
-      this.shadowRoot
-        .querySelectorAll("#actions y-button")
-        .forEach((button) => {
-          button.setAttribute("icon-only", "");
-        });
+      panel?.classList.remove("open");
+      panel?.setAttribute("aria-expanded", "false");
+      icon?.setAttribute("icon", "left-panel-open");
+      this.qs("#toggle-panel")?.setAttribute("icon-only", "");
+      this.qsa("#actions y-button").forEach((button) => {
+        button.setAttribute("icon-only", "");
+      });
     } else {
-      panel.classList.add("open");
-      panel.setAttribute("aria-expanded", "true");
-      icon.setAttribute("icon", "left-panel-close");
-      this.shadowRoot
-        .querySelector("#toggle-panel")
-        .removeAttribute("icon-only");
-      this.shadowRoot
-        .querySelectorAll("#actions y-button")
-        .forEach((button) => {
-          button.removeAttribute("icon-only");
-        });
+      panel?.classList.add("open");
+      panel?.setAttribute("aria-expanded", "true");
+      icon?.setAttribute("icon", "left-panel-close");
+      this.qs("#toggle-panel")?.removeAttribute("icon-only");
+      this.qsa("#actions y-button").forEach((button) => {
+        button.removeAttribute("icon-only");
+      });
     }
   }
 }

@@ -1,10 +1,9 @@
-import { toaster } from "../../utlis/toaster";
+import { ShadowComponent } from "../../utils/shadow-component";
+import { toaster } from "../../utils/toaster";
 
-export default class CreatePost extends HTMLElement {
+export default class CreatePost extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
-
     const actions = [
       { icon: "image", text: "Add image" },
       { icon: "video", text: "Add video" },
@@ -26,7 +25,7 @@ export default class CreatePost extends HTMLElement {
       )
       .join("");
 
-    this.shadowRoot.innerHTML = `
+    this.html`
       <style>
         :host {
           box-sizing: border-box;
@@ -102,8 +101,8 @@ export default class CreatePost extends HTMLElement {
   }
 
   connectedCallback() {
-    this.shadowRoot.getElementById("post")?.addEventListener("click", () => {
-      const content = this.shadowRoot.getElementById("content")?.innerText;
+    this.root.getElementById("post")?.addEventListener("click", () => {
+      const content = this.root.getElementById("content")?.innerText;
       if (!content) {
         toaster.create({
           title: "Error",

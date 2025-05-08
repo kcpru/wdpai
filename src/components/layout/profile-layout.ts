@@ -1,8 +1,10 @@
-export default class ProfileLayout extends HTMLElement {
+import { ShadowComponent } from "../../utils/shadow-component";
+
+export default class ProfileLayout extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
+
+    this.html`
 			<style>
 				:host {
 					box-sizing: border-box;

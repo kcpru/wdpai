@@ -1,12 +1,14 @@
 import { WC_PREFIX } from "../constants/config.ts";
+import { ShadowComponent } from "../utils/shadow-component.ts";
 import { render } from "./router.ts";
 
-export default class RouteOutlet extends HTMLElement {
+export default class RouteOutlet extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
+
     window.addEventListener("popstate", () => render(location.pathname));
   }
+
   connectedCallback() {
     render(location.pathname);
   }

@@ -1,9 +1,10 @@
-export default class ToggleTip extends HTMLElement {
+import { ShadowComponent } from "../../utils/shadow-component";
+
+export default class ToggleTip extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
 
-    this.shadowRoot.innerHTML = `
+    this.html`
       <style>
         :host {
           position: relative;
@@ -60,16 +61,16 @@ export default class ToggleTip extends HTMLElement {
   }
 
   connectedCallback() {
-    this.shadowRoot.querySelector("slot")?.addEventListener("click", () => {
+    this.qs<HTMLSlotElement>("slot")?.addEventListener("click", () => {
       console.log("clicked");
-      const tooltip = this.shadowRoot.querySelector("#tooltip");
+      const tooltip = this.root.querySelector("#tooltip");
       tooltip?.classList.toggle("visible");
     });
 
     document.addEventListener("click", (e) => {
       if (!this.contains(e.target as Node)) {
         console.log("document clicked");
-        // this.shadowRoot.querySelector("#tooltip")?.classList.remove("visible");
+        // this.root.querySelector("#tooltip")?.classList.remove("visible");
       }
     });
   }
@@ -79,7 +80,7 @@ export default class ToggleTip extends HTMLElement {
   }
 
   attributeChangedCallback(name: string, _old: string, value: string) {
-    const tooltip = this.shadowRoot.querySelector("#tooltip") as HTMLElement;
+    const tooltip = this.root.querySelector("#tooltip") as HTMLElement;
     if (!tooltip) return;
 
     if (name === "text") {

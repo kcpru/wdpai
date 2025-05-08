@@ -1,9 +1,9 @@
 import { WC_PREFIX } from "../constants/config";
+import { ShadowComponent } from "../utils/shadow-component";
 
-export default class NotFound extends HTMLElement {
+export default class NotFound extends ShadowComponent {
   connectedCallback() {
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
+    this.html`
       <style>
         :host {
           display: block;

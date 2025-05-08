@@ -1,8 +1,10 @@
-export default class Tooltip extends HTMLElement {
+import { ShadowComponent } from "../../utils/shadow-component";
+
+export default class Tooltip extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
+
+    this.html`
       <style>
         :host {
           position: relative;
@@ -83,7 +85,7 @@ export default class Tooltip extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    const tooltip = this.shadowRoot.querySelector("#tooltip") as HTMLElement;
+    const tooltip = this.qs<HTMLDivElement>("#tooltip");
     if (name === "text") {
       tooltip.textContent = newValue || "";
       tooltip.style.display = newValue ? "inline" : "none";

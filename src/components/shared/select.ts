@@ -1,8 +1,10 @@
-export default class Select extends HTMLElement {
+import { ShadowComponent } from "../../utils/shadow-component";
+
+export default class Select extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
+
+    this.html`
 			<style>
 				:host {
 					display: inline-block;
@@ -43,7 +45,7 @@ export default class Select extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    const select = this.shadowRoot.querySelector("select");
+    const select = this.qs("select");
     if (name === "variant") {
       select.classList.remove(oldValue);
       select.classList.add(newValue);
@@ -51,21 +53,21 @@ export default class Select extends HTMLElement {
   }
 
   get variant() {
-    return this.getAttribute("variant");
+    return this.attr("variant") || "";
   }
-  set variant(value) {
+  set variant(value: string) {
     this.setAttribute("variant", value);
   }
 
   get value() {
-    return this.shadowRoot.querySelector("select").value;
+    return this.qs<HTMLSelectElement>("select").value;
   }
   set value(value) {
-    this.shadowRoot.querySelector("select").value = value;
+    this.qs<HTMLSelectElement>("select").value = value;
   }
 
   get disabled() {
-    return this.hasAttribute("disabled");
+    return this.hasAttr("disabled");
   }
   set disabled(value) {
     if (value) {

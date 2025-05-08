@@ -1,10 +1,11 @@
 import { WC_PREFIX } from "../constants/config";
+import { ShadowComponent } from "../utils/shadow-component";
 
-export default class Home extends HTMLElement {
+export default class Home extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
+
+    this.html`
       <y-create-post></y-create-post>
       <y-post></y-post>
       <y-post></y-post>

@@ -1,8 +1,10 @@
-export default class Avatar extends HTMLElement {
+import { ShadowComponent } from "../../utils/shadow-component";
+
+export default class Avatar extends ShadowComponent {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
+
+    this.html`
 			<style>
 				:host {
 				  --avatar-size: var(--text-base);
@@ -29,7 +31,7 @@ export default class Avatar extends HTMLElement {
   }
 
   renderAvatar(src: string) {
-    const avatarElement = this.shadowRoot!.querySelector("#avatar")!;
+    const avatarElement = this.root!.querySelector("#avatar")!;
     avatarElement.innerHTML = `<img src="${src}" alt="${this.getAttribute("alt")}" />`;
   }
 }

@@ -1,11 +1,11 @@
 import { WC_PREFIX } from "../constants/config";
+import { ShadowComponent } from "../utils/shadow-component";
 import { render } from "./router";
 
-export default class NavLink extends HTMLElement {
+export default class NavLink extends ShadowComponent {
   constructor() {
     super();
-    const shadow = this.attachShadow({ mode: "open" });
-    const href = this.getAttribute("href") || "/";
+    const href = this.attr("href") || "/";
     const a = document.createElement("a");
 
     a.href = href;
@@ -15,7 +15,7 @@ export default class NavLink extends HTMLElement {
       history.pushState({}, "", href);
       render(location.pathname);
     });
-    shadow.appendChild(a);
+    this.root.appendChild(a);
   }
 }
 
