@@ -37,6 +37,7 @@ export default class MrokAi extends ShadowComponent {
 					animation: noise 10s infinite linear;
 					z-index: 0;
 					animation: background-move 1s infinite linear;
+          min-width: 40rem;
 				}
 				
 				@keyframes background-move {
@@ -67,14 +68,14 @@ export default class MrokAi extends ShadowComponent {
 				.title y-icon {
           background: -webkit-linear-gradient(45deg, #ce4646, #d77449);
           border-radius: var(--radius-xl);
-          width: 5rem;
-          height: 5rem;
+          width: 4rem;
+          height: 4rem;
           padding: var(--spacing-xs);
           color: hsl(var(--background));
 				}
 				
 				.title span {
-					font-size: 6rem;
+					font-size: 4rem;
 					font-weight: var(--font-bold);
           background: -webkit-linear-gradient(45deg, #c9573f, #3530d0);
           -webkit-background-clip: text;
@@ -118,12 +119,14 @@ export default class MrokAi extends ShadowComponent {
           width: 100%;
           max-width: var(--sm);
         }
+
         form {
           display: flex;
           flex-direction: column;
           gap: var(--spacing-md);
           opacity: 0.5;
         }
+
         .textarea {
           box-sizing: border-box;
           padding: var(--spacing-md);
@@ -137,31 +140,34 @@ export default class MrokAi extends ShadowComponent {
           transition: height 1s ease;
           overflow-y: auto;
         }
+
         [contenteditable=true]:empty:before{
           content: attr(data-placeholder);
           pointer-events: none;
           display: block; 
           color: hsl(var(--muted-foreground));
         }
+          
         #content:focus-visible {
           box-shadow: var(--shadow-outline);
           outline: none;
         }
+
         .footer {
           display: flex;
           justify-content: space-between;
         }
+
         .actions {
         	display: flex;
 				}
-			  
 			</style>
 			
 			<y-profile-layout>
 				<div slot="banner" id="banner">
 					<section class="banner">
             <div class="title">
-              <y-icon icon="light-bulb"></y-icon>
+              <y-icon icon="stars"></y-icon>
               <span>Mrok AI</span>
             </div>
             

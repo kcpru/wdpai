@@ -44,6 +44,10 @@ export abstract class ShadowComponent extends HTMLElement {
     return this.hasAttribute(name);
   }
 
+  protected setAttr(name: string, value: string): void {
+    this.setAttribute(name, value);
+  }
+
   protected html(strings: TemplateStringsArray, ...values: unknown[]) {
     this.root.innerHTML = String.raw({ raw: strings }, ...values);
   }

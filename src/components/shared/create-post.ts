@@ -102,7 +102,7 @@ export default class CreatePost extends ShadowComponent {
 
   connectedCallback() {
     this.root.getElementById("post")?.addEventListener("click", () => {
-      const content = this.root.getElementById("content")?.innerText;
+      const content = this.qs<HTMLDivElement>("#content").innerText;
       if (!content) {
         toaster.create({
           title: "Error",

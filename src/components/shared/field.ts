@@ -132,8 +132,8 @@ export default class Field extends ShadowComponent {
   }
 
   validate() {
-    const customRegex = this.getAttribute("regex");
-    const type = this.getAttribute("type") || "text";
+    const customRegex = this.attr("regex");
+    const type = this.attr("type") || "text";
     const regex = customRegex
       ? new RegExp(customRegex)
       : typeRegexMap[type] || /.*/;

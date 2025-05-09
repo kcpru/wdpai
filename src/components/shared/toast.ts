@@ -29,6 +29,7 @@ export default class Toast extends ShadowComponent {
           transform: translateY(0);
         }
       </style>
+
       <div class="toast">
         <h4 id="title"></h4>
         <p id="description"></p>
@@ -49,7 +50,7 @@ export default class Toast extends ShadowComponent {
     this.qs<HTMLDivElement>("#title").innerText = title ?? "";
     this.qs<HTMLDivElement>("#description").innerText = description ?? "";
 
-    const toastElement = this.root.querySelector(".toast") as HTMLElement;
+    const toastElement = this.qs<HTMLDivElement>(".toast");
 
     if (type === "success") {
       toastElement.style.backgroundColor = "green";
@@ -61,7 +62,7 @@ export default class Toast extends ShadowComponent {
   }
 
   showToast() {
-    const toastElement = this.root.querySelector(".toast") as HTMLElement;
+    const toastElement = this.qs(".toast");
     setTimeout(() => {
       toastElement.classList.add("show");
     }, 50);
@@ -71,7 +72,7 @@ export default class Toast extends ShadowComponent {
   }
 
   removeToast() {
-    const toastElement = this.root.querySelector(".toast") as HTMLElement;
+    const toastElement = this.qs(".toast");
     toastElement.classList.add("hide");
     console.log("removing toast");
     setTimeout(() => {

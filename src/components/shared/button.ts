@@ -3,6 +3,7 @@ import { ShadowComponent } from "../../utils/shadow-component";
 export default class ButtonComponent extends ShadowComponent {
   constructor() {
     super();
+
     this.html`
       <style>
         :host { }
@@ -92,17 +93,17 @@ export default class ButtonComponent extends ShadowComponent {
   }
 
   connectedCallback() {
-    const button = this.root?.querySelector("button");
+    const button = this.qs("button");
     if (!button) return;
 
     button.addEventListener("click", (e) => {
-      if (this.hasAttribute("disabled")) return;
-      this.dispatchEvent(new Event("click", { bubbles: true }));
+      if (this.hasAttr("disabled")) return;
+      this.emit("click-event", { bubbles: true });
     });
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    const button = this.root?.querySelector("button");
+    const button = this.qs("button");
     if (!button) return;
 
     if (name === "variant") {

@@ -11,7 +11,7 @@ export default class MainLayout extends ShadowComponent {
     this.addEventListeners();
 
     this.qsa(".action-button").forEach((button) => {
-      button.addEventListener("click", (event) => {
+      button.addEventListener("click-event", (event) => {
         const href = (event?.currentTarget as HTMLElement)?.getAttribute(
           "data-href"
         );
@@ -137,6 +137,7 @@ export default class MainLayout extends ShadowComponent {
         <div id="content">
           <slot></slot>
         </div>  
+
         <y-tooltip id="back-to-top" text="Back to top">
           <y-button variant="outline" icon-only aria-label="Back to top">
             <y-icon icon="arrow-upward" slot="icon"></y-icon>
@@ -162,7 +163,7 @@ export default class MainLayout extends ShadowComponent {
       }
     });
 
-    this.qs("#toggle-panel")?.addEventListener("click", () => {
+    this.on("#toggle-panel", "click", () => {
       this.togglePanel();
     });
   }
@@ -177,7 +178,7 @@ export default class MainLayout extends ShadowComponent {
       panel?.classList.remove("open");
       panel?.setAttribute("aria-expanded", "false");
       icon?.setAttribute("icon", "left-panel-open");
-      this.qs("#toggle-panel")?.setAttribute("icon-only", "");
+      this.qs("#toggle-panel").setAttribute("icon-only", "");
       this.qsa("#actions y-button").forEach((button) => {
         button.setAttribute("icon-only", "");
       });
@@ -185,7 +186,7 @@ export default class MainLayout extends ShadowComponent {
       panel?.classList.add("open");
       panel?.setAttribute("aria-expanded", "true");
       icon?.setAttribute("icon", "left-panel-close");
-      this.qs("#toggle-panel")?.removeAttribute("icon-only");
+      this.qs("#toggle-panel").removeAttribute("icon-only");
       this.qsa("#actions y-button").forEach((button) => {
         button.removeAttribute("icon-only");
       });

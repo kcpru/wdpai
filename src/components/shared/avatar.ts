@@ -7,17 +7,16 @@ export default class Avatar extends ShadowComponent {
     this.html`
 			<style>
 				:host {
-				  --avatar-size: var(--text-base);
-				  background-color: var(--foreground);
+				  --avatar-size: 2rem;
+				  background-color: hsl(var(--foreground));
+					border-radius: var(--radius-full);
 					box-sizing: border-box;
 					display: block;
-					width: var(--avatar-size, var(--text-base));
-					height: var(--avatar-size, var(--text-base));
-				}
-				:host([hidden]) {
-					display: none;
+					width: var(--avatar-size);
+					height: var(--avatar-size);
 				}
 			</style>
+
 			<div id="avatar"></div>
 		`;
   }
@@ -31,7 +30,7 @@ export default class Avatar extends ShadowComponent {
   }
 
   renderAvatar(src: string) {
-    const avatarElement = this.root!.querySelector("#avatar")!;
-    avatarElement.innerHTML = `<img src="${src}" alt="${this.getAttribute("alt")}" />`;
+    const avatarElement = this.qs<HTMLDivElement>("#avatar");
+    avatarElement.style.backgroundImage = `url(${src})`;
   }
 }

@@ -56,7 +56,7 @@ export default class Select extends ShadowComponent {
     return this.attr("variant") || "";
   }
   set variant(value: string) {
-    this.setAttribute("variant", value);
+    this.setAttr("variant", value);
   }
 
   get value() {

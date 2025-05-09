@@ -21,6 +21,7 @@ import ToggleTip from "./components/shared/toggle-tip";
 import Toast from "./components/shared/toast";
 import Post from "./components/shared/post";
 import ProfileLayout from "./components/layout/profile-layout";
+import Avatar from "./components/shared/avatar";
 
 customElements.define(`${WC_PREFIX}-main-layout`, MainLayout);
 customElements.define(`${WC_PREFIX}-button`, Button);
@@ -34,6 +35,7 @@ customElements.define(`${WC_PREFIX}-toggle-tip`, ToggleTip);
 customElements.define(`${WC_PREFIX}-toast`, Toast);
 customElements.define(`${WC_PREFIX}-post`, Post);
 customElements.define(`${WC_PREFIX}-profile-layout`, ProfileLayout);
+customElements.define(`${WC_PREFIX}-avatar`, Avatar);
 
 // import "./image.js"; - lazy loading, zoomable, etc.
 // import "./textarea.js";

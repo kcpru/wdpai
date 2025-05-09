@@ -6,6 +6,15 @@ export default class Home extends ShadowComponent {
     super();
 
     this.html`
+      <style>
+        :host {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-md);
+          margin-bottom: calc(2 * var(--spacing-xl));
+        }
+      </style>
+
       <y-create-post></y-create-post>
       <y-post></y-post>
       <y-post></y-post>
