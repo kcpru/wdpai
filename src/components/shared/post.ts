@@ -1,20 +1,47 @@
 import { ShadowComponent } from "../../utils/shadow-component";
 
 export default class Post extends ShadowComponent {
+  static observedAttributes = ["text", "images"];
+
+  text = "";
+  images: string[] = [];
+
   constructor() {
     super();
+  }
+
+  connectedCallback() {
+    this.parseAttributes();
+    this.render();
+    this.renderTimestamp();
+  }
+
+  attributeChangedCallback() {
+    this.parseAttributes();
+    this.render();
+  }
+
+  parseAttributes() {
+    this.text = this.attr("text") ?? "";
+    try {
+      this.images = JSON.parse(this.attr("images") ?? "[]");
+    } catch {
+      this.images = [];
+    }
+  }
+
+  render() {
     this.html`
       <style>
         :host {
-          box-sizing: border-box;
           display: block;
           padding: var(--spacing-md);
           background: hsl(var(--card));
           color: hsl(var(--card-foreground));
           border-radius: var(--radius-lg);
           border: 1px solid hsl(var(--border));
-          width: 100%;
           max-width: var(--sm);
+          box-sizing: border-box;
         }
 
         .header {
@@ -34,7 +61,19 @@ export default class Post extends ShadowComponent {
 
         #content {
           margin-top: var(--spacing-md);
-          color: hsl(var(--foreground));
+        }
+
+        #images {
+          margin-top: var(--spacing-md);
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+          gap: var(--spacing-sm);
+        }
+
+        #images img {
+          width: 100%;
+          border-radius: var(--radius-md);
+          object-fit: cover;
         }
 
         #actions {
@@ -46,12 +85,19 @@ export default class Post extends ShadowComponent {
       <div class="header">
         <y-avatar src="https://picsum.photos/300/300" alt="Avatar image"></y-avatar>
         <div id="username">Username</div>
-        <div id="timestamp">- ago</div>
+        <div id="timestamp">–</div>
       </div>
 
-      <div id="content">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-      </div>
+      <div id="content">${this.text}</div>
+
+			<div id="images">
+				${this.images
+          .map(
+            (src) =>
+              `<y-image src="${encodeURI(src)}" alt="Post image"></y-image>`
+          )
+          .join("")}
+			</div>
 
       <div id="actions">
         ${this.renderAction("heart", "Like", "17.3k")}
@@ -60,10 +106,6 @@ export default class Post extends ShadowComponent {
         ${this.renderAction("bookmark", "Save")}
       </div>
     `;
-  }
-
-  connectedCallback() {
-    this.renderTimestamp();
   }
 
   renderAction(icon: string, tooltip: string, label?: string) {
@@ -81,8 +123,7 @@ export default class Post extends ShadowComponent {
 
   renderTimestamp() {
     const timestamp = this.qs<HTMLDivElement>("#timestamp");
-    const now = new Date();
-    timestamp.textContent = this.timeAgo(now);
+    timestamp.textContent = this.timeAgo(new Date());
   }
 
   timeAgo(date: Date): string {
