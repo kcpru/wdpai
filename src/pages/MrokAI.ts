@@ -1,5 +1,7 @@
 import { ShadowComponent } from "../utils/shadow-component";
+import { WC } from "../utils/wc";
 
+@WC("mrok-ai")
 export default class MrokAi extends ShadowComponent {
   constructor() {
     super();
@@ -198,5 +200,3 @@ export default class MrokAi extends ShadowComponent {
 		`;
   }
 }
-
-customElements.define("y-mrok-ai", MrokAi);

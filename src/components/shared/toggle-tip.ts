@@ -1,5 +1,7 @@
 import { ShadowComponent } from "../../utils/shadow-component";
+import { WC } from "../../utils/wc";
 
+@WC("toggle-tip")
 export default class ToggleTip extends ShadowComponent {
   constructor() {
     super();

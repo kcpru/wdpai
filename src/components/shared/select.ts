@@ -1,5 +1,7 @@
 import { ShadowComponent } from "../../utils/shadow-component";
+import { WC } from "../../utils/wc";
 
+@WC("select")
 export default class Select extends ShadowComponent {
   constructor() {
     super();

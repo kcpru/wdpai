@@ -1,5 +1,7 @@
 import { ShadowComponent } from "../../utils/shadow-component";
+import { WC } from "../../utils/wc";
 
+@WC("button")
 export default class ButtonComponent extends ShadowComponent {
   constructor() {
     super();

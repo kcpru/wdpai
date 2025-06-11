@@ -1,5 +1,7 @@
 import { ShadowComponent } from "../../utils/shadow-component";
+import { WC } from "../../utils/wc";
 
+@WC("card")
 export default class Card extends ShadowComponent {
   constructor() {
     super();

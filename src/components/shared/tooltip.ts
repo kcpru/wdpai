@@ -1,5 +1,7 @@
 import { ShadowComponent } from "../../utils/shadow-component";
+import { WC } from "../../utils/wc";
 
+@WC("tooltip")
 export default class Tooltip extends ShadowComponent {
   constructor() {
     super();

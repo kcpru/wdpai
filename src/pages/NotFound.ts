@@ -1,6 +1,8 @@
 import { WC_PREFIX } from "../constants/config";
 import { ShadowComponent } from "../utils/shadow-component";
+import { WC } from "../utils/wc";
 
+@WC(`not-found`)
 export default class NotFound extends ShadowComponent {
   connectedCallback() {
     this.html`
@@ -29,5 +31,3 @@ export default class NotFound extends ShadowComponent {
     `;
   }
 }
-
-customElements.define(`${WC_PREFIX}-not-found-page`, NotFound);

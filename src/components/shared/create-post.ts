@@ -1,6 +1,8 @@
 import { ShadowComponent } from "../../utils/shadow-component";
 import { toaster } from "../../utils/toaster";
+import { WC } from "../../utils/wc";
 
+@WC("create-post")
 export default class CreatePost extends ShadowComponent {
   constructor() {
     super();

@@ -1,5 +1,7 @@
 import { ShadowComponent } from "../../utils/shadow-component";
+import { WC } from "../../utils/wc";
 
+@WC("post")
 export default class Post extends ShadowComponent {
   static observedAttributes = ["text", "images"];
 

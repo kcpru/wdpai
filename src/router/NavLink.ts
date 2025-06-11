@@ -1,7 +1,9 @@
 import { WC_PREFIX } from "../constants/config";
 import { ShadowComponent } from "../utils/shadow-component";
 import { render } from "./router";
+import { WC } from "../utils/wc";
 
+@WC("nav-link")
 export default class NavLink extends ShadowComponent {
   constructor() {
     super();
@@ -18,5 +20,3 @@ export default class NavLink extends ShadowComponent {
     this.root.appendChild(a);
   }
 }
-
-customElements.define(`${WC_PREFIX}-nav-link`, NavLink);

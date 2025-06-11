@@ -1,5 +1,7 @@
 import { ShadowComponent } from "../../utils/shadow-component";
+import { WC } from "../../utils/wc";
 
+@WC("image")
 export default class Image extends ShadowComponent {
   static observedAttributes = ["src", "alt"];
 

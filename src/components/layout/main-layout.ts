@@ -1,6 +1,8 @@
 import { ShadowComponent } from "../../utils/shadow-component";
 import { render } from "../../router";
+import { WC } from "../../utils/wc";
 
+@WC("main-layout")
 export default class MainLayout extends ShadowComponent {
   constructor() {
     super();

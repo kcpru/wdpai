@@ -1,5 +1,7 @@
 import { ShadowComponent } from "../../utils/shadow-component";
+import { WC } from "../../utils/wc";
 
+@WC("profile-layout")
 export default class ProfileLayout extends ShadowComponent {
   constructor() {
     super();

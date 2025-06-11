@@ -1,6 +1,8 @@
 import { icons } from "../../constants/icons";
 import { ShadowComponent } from "../../utils/shadow-component";
+import { WC } from "../../utils/wc";
 
+@WC("icon")
 export default class Icon extends ShadowComponent {
   constructor() {
     super();

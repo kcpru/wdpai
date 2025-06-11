@@ -1,6 +1,7 @@
-import { WC_PREFIX } from "../constants/config.ts";
-import { ShadowComponent } from "../utils/shadow-component.ts";
-import { render } from "./router.ts";
+import { WC_PREFIX } from "../constants/config";
+import { ShadowComponent } from "../utils/shadow-component";
+import { render } from "./router";
+import { WC } from "../utils/wc";
 
 declare global {
   interface Window {
@@ -9,6 +10,7 @@ declare global {
   }
 }
 
+@WC("route-outlet")
 export default class RouteOutlet extends ShadowComponent {
   constructor() {
     super();
@@ -26,5 +28,3 @@ export default class RouteOutlet extends ShadowComponent {
     }
   }
 }
-
-customElements.define(`${WC_PREFIX}-route-outlet`, RouteOutlet);

@@ -1,4 +1,5 @@
 import { ShadowComponent } from "../../utils/shadow-component";
+import { WC } from "../../utils/wc";
 
 const typeRegexMap: Record<string, RegExp> = {
   email: /^[^@]+@[^@]+\.[^@]+$/,
@@ -8,6 +9,7 @@ const typeRegexMap: Record<string, RegExp> = {
   tel: /^\+?\d{7,15}$/,
 };
 
+@WC("field")
 export default class Field extends ShadowComponent {
   constructor() {
     super();

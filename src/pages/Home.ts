@@ -1,6 +1,8 @@
 import { WC_PREFIX } from "../constants/config";
 import { ShadowComponent } from "../utils/shadow-component";
+import { WC } from "../utils/wc";
 
+@WC("home-page")
 export default class Home extends ShadowComponent {
   constructor() {
     super();
@@ -48,5 +50,3 @@ export default class Home extends ShadowComponent {
     `;
   }
 }
-
-customElements.define(`${WC_PREFIX}-home-page`, Home);

@@ -1,5 +1,7 @@
 import { ShadowComponent } from "../../utils/shadow-component";
+import { WC } from "../../utils/wc";
 
+@WC("avatar")
 export default class Avatar extends ShadowComponent {
   constructor() {
     super();

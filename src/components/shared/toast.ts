@@ -1,5 +1,7 @@
 import { ShadowComponent } from "../../utils/shadow-component";
+import { WC } from "../../utils/wc";
 
+@WC("toast")
 export default class Toast extends ShadowComponent {
   constructor() {
     super();
