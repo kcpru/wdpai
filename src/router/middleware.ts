@@ -5,9 +5,10 @@ type Middleware = (ctx: {
 
 export const middlewares: Middleware[] = [
   async ({ path }) => {
-    if (path.startsWith("/settings") && !localStorage.getItem("auth_token")) {
-      return { allow: false, redirect: "/login" };
-    }
+    // if (path.startsWith("/settings") && !localStorage.getItem("auth_token")) {
+    //   return { allow: false, redirect: "/login" };
+    // }
+    // return { allow: true };
     return { allow: true };
   },
 ];

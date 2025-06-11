@@ -1,84 +1,159 @@
+// router.ts — v4 (fault-tolerant nested outlets)
 import { routes } from "./routes";
 import { middlewares } from "./middleware";
 import NotFound from "../pages/NotFound";
 
-function parseSegments(path: string) {
-  return path.split("/").filter(Boolean);
-}
+let isRendering = false;
 
-async function resolveComponentTree(
-  segments: string[],
-  routes: any[]
-): Promise<{
+/* ---------- typings ---------- */
+export interface Route {
+  path: string;
+  component: () => Promise<HTMLElement>;
+  guard?: () => boolean | Promise<boolean>;
+  children?: Route[];
+}
+interface ResolveRes {
   stack: HTMLElement[];
   params: Record<string, string>;
-  path: string;
-}> {
-  const stack: HTMLElement[] = [];
-  const params: Record<string, string> = {};
-  let currentRoutes = routes;
-  const pathParts: string[] = [];
-
-  for (const segment of segments.length ? segments : [""]) {
-    let matched = false;
-    for (const route of currentRoutes) {
-      const dynamic = route.path.startsWith(":") || route.path.startsWith("@:");
-      const routeSegment = dynamic
-        ? route.path.replace(/^@?:/, "")
-        : route.path;
-      const segmentMatch = dynamic ? true : segment === route.path;
-      const isAt = route.path.startsWith("@:");
-      if (segmentMatch && (!isAt || segment.startsWith("@"))) {
-        if (route.guard && !(await route.guard()))
-          return { stack: [], params, path: "/login" };
-        const comp = await route.component();
-        stack.push(comp);
-        if (dynamic) params[routeSegment] = segment.replace(/^@/, "");
-        currentRoutes = route.children || [];
-        pathParts.push(segment);
-        matched = true;
-        break;
-      }
-    }
-    if (!matched) break;
-  }
-
-  return { stack, params, path: "/" + pathParts.join("/") };
+  consumed: string[];
+  unmatched: boolean;
 }
 
-async function applyMiddleware(path: string, params: Record<string, string>) {
-  for (const fn of middlewares) {
-    const result = await fn({ path, params });
-    if (!result.allow) {
-      history.pushState({}, "", result.redirect);
-      if (result.redirect) {
-        await render(result.redirect);
-      }
-      return false;
+/* ---------- helpers ---------- */
+const ROOT = "";
+const split = (p: string) => p.split("/").filter(Boolean);
+const isDynamic = (p: string) => /^@?:/.test(p);
+const isAt = (p: string) => p.startsWith("@:");
+
+/** wait until the particular <y-route-outlet> instance is upgraded */
+const whenOutletReady = (el: HTMLElement | null) =>
+  el && (el as any).shadowRoot
+    ? Promise.resolve()
+    : new Promise<void>((res) => {
+        if (!el) return res();
+        customElements.whenDefined("y-route-outlet").then(() => {
+          if ((el as any).shadowRoot) return res();
+          // fallback: observe until it upgrades
+          const mo = new MutationObserver(() => {
+            if ((el as any).shadowRoot) {
+              mo.disconnect();
+              res();
+            }
+          });
+          mo.observe(el, { childList: false });
+        });
+      });
+
+/* ---------- resolver ---------- */
+async function resolvePath(
+  segments: string[],
+  table: readonly Route[]
+): Promise<ResolveRes | null> {
+  const stack: HTMLElement[] = [];
+  const params: Record<string, string> = {};
+  const consumed: string[] = [];
+  let unmatched = false;
+
+  let routes = table;
+  const queue = segments.length ? segments : [ROOT];
+
+  for (const seg of queue) {
+    let hit: Route | undefined;
+
+    for (const r of routes) {
+      const ok = isDynamic(r.path)
+        ? !isAt(r.path) || seg.startsWith("@")
+        : r.path === seg || (r.path === ROOT && seg === ROOT);
+      if (!ok) continue;
+
+      if (r.guard && !(await r.guard())) return null; // redirect inside guard
+      hit = r;
+
+      const el = await r.component();
+      stack.push(el);
+
+      if (isDynamic(r.path))
+        params[r.path.replace(/^@?:/, "")] = seg.replace(/^@/, "");
+
+      routes = r.children ?? [];
+      consumed.push(seg);
+      break;
     }
+    if (!hit) {
+      unmatched = true;
+      break;
+    }
+  }
+  return { stack, params, consumed, unmatched };
+}
+
+/* ---------- middleware ---------- */
+async function runMiddlewares(path: string, params: Record<string, string>) {
+  for (const mw of middlewares) {
+    const res = await mw({ path, params });
+    if (res.allow) continue;
+
+    history.pushState({}, "", res.redirect);
+    if (res.redirect) await render(res.redirect);
+    return false;
   }
   return true;
 }
 
-export async function render(path: string) {
-  const outlet = document.querySelector("y-route-outlet")?.shadowRoot;
-  if (!outlet) return;
+/* ---------- DOM mounting ---------- */
+async function mountStack(
+  host: ShadowRoot,
+  stack: readonly HTMLElement[],
+  unmatchedTail: boolean
+) {
+  host.innerHTML = "";
 
-  const {
-    stack,
-    params,
-    path: fullPath,
-  } = await resolveComponentTree(parseSegments(path), routes);
-  if (!(await applyMiddleware(fullPath, params))) return;
+  let target: ShadowRoot | null = host;
+  for (let i = 0; i < stack.length; i++) {
+    const el = stack[i];
+    target!.appendChild(el);
 
-  outlet.innerHTML = "";
-  if (!stack.length) return outlet.appendChild(new NotFound());
+    if (i === stack.length - 1) break; // last component – done
 
-  let target = outlet;
-  for (const el of stack) {
-    target.appendChild(el);
-    const nested = el.shadowRoot?.querySelector("y-route-outlet")?.shadowRoot;
-    if (!nested) break;
+    await Promise.resolve(); // microtask for upgrade
+    const outletEl = el.shadowRoot?.querySelector(
+      "y-route-outlet"
+    ) as HTMLElement | null;
+    await whenOutletReady(outletEl);
+    const nested = outletEl?.shadowRoot ?? null;
+
+    if (!nested) {
+      el.shadowRoot?.appendChild(new NotFound());
+      return;
+    }
     target = nested;
+  }
+
+  if (unmatchedTail) target?.appendChild(new NotFound());
+}
+
+/* ---------- public API ---------- */
+export async function render(path: string) {
+  if (isRendering) return; // ▼ blokuje re-kurencyjne wywołania
+  isRendering = true;
+  try {
+    const rootOutlet = document.querySelector("y-route-outlet")?.shadowRoot;
+    if (!rootOutlet) return;
+
+    const res = await resolvePath(split(decodeURI(path)), routes);
+    if (!res) return; // guard redirected
+    const { stack, params, consumed, unmatched } = res;
+
+    if (!(await runMiddlewares("/" + consumed.join("/"), params))) return;
+
+    if (!stack.length) {
+      rootOutlet.innerHTML = "";
+      rootOutlet.appendChild(new NotFound());
+      return;
+    }
+
+    await mountStack(rootOutlet, stack, unmatched);
+  } finally {
+    isRendering = false;
   }
 }
