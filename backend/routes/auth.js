@@ -1,0 +1,53 @@
+import { json, readBody } from "../util/http.js";
+import { hashPassword, verifyPassword } from "../util/hash.js";
+import { createUser, getUserByUsername } from "../models/users.js";
+import { createSession } from "../models/sessions.js";
+import { currentUser } from "../util/auth-mw.js";
+
+export async function authRouter(req, res, url) {
+  if (req.method === "POST" && url.pathname === "/register") {
+    const { username, password } = await readBody(req);
+    if (!username || !password) {
+      json(res, 400, { error: "need creds" });
+      return true;
+    }
+
+    try {
+      await createUser(username, hashPassword(password));
+      json(res, 201, { status: "ok" });
+      return true;
+    } catch {
+      json(res, 409, { error: "user exists" });
+      return true;
+    }
+  }
+
+  if (req.method === "POST" && url.pathname === "/login") {
+    const { username, password } = await readBody(req);
+    const user = await getUserByUsername(username);
+    if (!user || !verifyPassword(user.password_hash, password)) {
+      json(res, 401, { error: "bad creds" });
+      return true;
+    }
+
+    const token = await createSession(user.id);
+    res.setHeader(
+      "Set-Cookie",
+      `token=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=604800`
+    );
+    json(res, 200, { status: "ok" });
+    return true;
+  }
+
+  if (req.method === "GET" && url.pathname === "/me") {
+    const user = await currentUser(req);
+    if (!user) {
+      json(res, 401, { error: "not authed" });
+      return true;
+    }
+    json(res, 200, { id: user.id, username: user.username });
+    return true;
+  }
+
+  return false;
+}

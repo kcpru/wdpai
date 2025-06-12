@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
+    "lib": ["dom", "dom.iterable", "es2020", "esnext"],
+    "module": "es2020",
+    "types": ["vite/client"],
+    "forceConsistentCasingInFileNames": true,
+    "strict": true
+  }
+}
