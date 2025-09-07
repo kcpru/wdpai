@@ -24,6 +24,8 @@ import "./components/shared/post";
 import "./components/layout/profile-layout";
 import "./components/shared/avatar";
 import "./components/shared/image";
+import "./components/shared/separator";
+import "./components/shared/heading";
 
 // import "./image.js"; - lazy loading, zoomable, etc.
 // import "./textarea.js";

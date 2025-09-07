@@ -6,32 +6,47 @@ export default class LoginPage extends ShadowComponent {
   connectedCallback() {
     this.html`
       <style>
+        :host { display: block; max-width: 400px; margin: 2rem auto; padding: 0 1rem; }
         form { display: flex; flex-direction: column; gap: .75rem; }
         input { padding: .5rem; font-size: 1rem; }
-        .error { color: red; margin-top: .5rem; }
+        y-nav-link { margin-right: 1rem; }
+        .lede { color: hsl(var(--muted-foreground)); }
       </style>
-      <h1>Login</h1>
 
-      <form id="login-form" novalidate>
-        <label>
-          Username
-          <input id="username" required />
-        </label>
+      <y-card>
+        <div slot="header">
+          <y-heading level="1">Welcome back</y-heading>
+          <p class="lede">Sign in to continue your journey — secure, swift, and distraction-free.</p>
+        </div>
 
-        <label>
-          Password
-          <input id="password" type="password" required />
-        </label>
+        <form slot="body" id="login-form" novalidate>
+          <y-field id="email" type="email" required>
+            <span slot="label">Email address</span>
+            <span slot="error-text">Please enter a valid email address.</span>
+          </y-field>
 
-        <button type="submit">Login</button>
-        <div class="error" hidden></div>
-      </form>
+          <y-field id="password" type="password" required regex="^.{8,}$">
+            <span slot="label">Password</span>
+            <span slot="helper-text">At least 8 characters. Avoid common words; mix letters, numbers, and symbols.</span>
+            <span slot="error-text">Your password must be at least 8 characters long.</span>
+          </y-field>
 
-      <y-nav-link href="/">Home</y-nav-link>
-      <y-nav-link href="/register">Register</y-nav-link>
+          <div class="meta-row">
+            <label class="remember">
+              <input type="checkbox" id="remember" />
+              <span>Remember me on this device</span>
+            </label>
+            <y-nav-link href="/forgot-password">Forgot your password?</y-nav-link>
+          </div>
+
+          <y-button aria-label="Sign in" type="submit">
+            Sign in
+            <y-icon icon="login" slot="icon"></y-icon>
+          </y-button>
+        </form>
+      </y-card>
     `;
 
-    /* obsługa submit */
     this.on("form#login-form", "submit", (e) =>
       this.handleSubmit(e as SubmitEvent)
     );
@@ -46,7 +61,6 @@ export default class LoginPage extends ShadowComponent {
       password: $("#password").value,
     };
 
-    /* walidacja HTML5 już zrobiła robotę required */
     try {
       const res = await fetch(`${import.meta.env.VITE_API}/login`, {
         method: "POST",
@@ -57,9 +71,8 @@ export default class LoginPage extends ShadowComponent {
 
       if (!res.ok) throw new Error((await res.json()).error || "Login failed");
 
-      /* sukces → przekieruj na stronę główną */
-      this.emit("navigate", "/"); // jeśli masz własny router bus
-      history.pushState({}, "", "/"); // fallback
+      this.emit("navigate", "/");
+      history.pushState({}, "", "/");
       this.dispatchEvent(new PopStateEvent("popstate"));
     } catch (err: any) {
       const box = this.qs<HTMLDivElement>(".error");
