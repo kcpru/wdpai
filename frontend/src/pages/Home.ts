@@ -4,31 +4,67 @@ import { WC } from "../utils/wc";
 
 @WC("home-page")
 export default class Home extends ShadowComponent {
-  constructor() {
-    super();
+  private posts: Array<{
+    id: number;
+    content: string;
+    images: string[];
+    user_id?: number;
+    username?: string;
+    created_at?: string;
+  likes_count?: number;
+  liked?: boolean;
+  bookmarked?: boolean;
+  bookmarks_count?: number;
+  }> = [];
+  private meId: number | null = null;
 
-    const posts = [
-      {
-        text: "Exploring the forest today 🌲",
-        images: [
-          "https://picsum.photos/id/1011/400/300",
-          "https://picsum.photos/id/1012/400/300",
-        ],
-      },
-      {
-        text: "Just finished a 10k run! 🏃‍♂️",
-        images: [],
-      },
-      {
-        text: "Throwback to last summer ☀️",
-        images: ["https://picsum.photos/id/1015/400/300"],
-      },
-      {
-        text: "Anyone up for a coffee?",
-        images: [],
-      },
-    ];
+  async connectedCallback() {
+    await Promise.all([this.loadMe(), this.loadPosts()]);
+    this.render();
+    const onCreated = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!detail) return;
+      this.posts.unshift(detail);
+      this.render();
+    };
+    this.root.addEventListener("post-created", onCreated as any);
 
+    const onDeleted = (e: Event) => {
+      const id = (e as CustomEvent).detail?.id;
+      if (typeof id !== "number") return;
+      this.posts = this.posts.filter((p) => p.id !== id);
+      this.render();
+    };
+    this.root.addEventListener("post-deleted", onDeleted as any);
+  }
+
+  private async loadMe() {
+    try {
+      const resp = await fetch(import.meta.env.VITE_API + "/me", {
+        credentials: "include",
+      });
+      if (!resp.ok) return;
+      const me = await resp.json();
+      this.meId = Number(me?.id) || null;
+    } catch {
+      this.meId = null;
+    }
+  }
+
+  private async loadPosts() {
+    try {
+      const resp = await fetch(import.meta.env.VITE_API + "/posts", {
+        credentials: "include",
+      });
+      if (!resp.ok) throw new Error("failed");
+      const data = await resp.json();
+      this.posts = data.posts || [];
+    } catch {
+      this.posts = [];
+    }
+  }
+
+  private render() {
     this.html`
       <style>
         :host {
@@ -39,14 +75,32 @@ export default class Home extends ShadowComponent {
         }
       </style>
 
-      <y-create-post></y-create-post>
+  <y-create-post-gate></y-create-post-gate>
 
-      ${posts
+      ${this.posts
         .map(
-          (post) =>
-            `<y-post text="${post.text}" images='${JSON.stringify(post.images)}'></y-post>`
+          (p) =>
+            `<y-post
+              pid="${p.id}"
+              text="${this.escape(p.content)}"
+              images='${JSON.stringify(p.images || [])}'
+              username="${this.escape(p.username || "")}"
+              avatar="${this.escape((p as any).avatar || "") }"
+              likes="${p.likes_count ?? 0}"
+              bookmarks="${p.bookmarks_count ?? 0}"
+              ${p.liked ? "liked" : ""}
+              ${p.bookmarked ? "bookmarked" : ""}
+              ${p.user_id && this.meId && p.user_id === this.meId ? "author" : ""}
+            ></y-post>`
         )
         .join("")}
     `;
+  }
+
+  private escape(s: string) {
+    return s
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;");
   }
 }

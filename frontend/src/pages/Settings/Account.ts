@@ -20,13 +20,33 @@ export default class SettingsAccountPage extends ShadowComponent {
           <span slot="error-text">Please enter a valid email address.</span>
         </y-field>
 
+        <y-field id="avatar" type="url">
+          <span slot="label">Avatar URL</span>
+          <span slot="helper-text">Direct image URL (PNG/JPG/WebP).</span>
+        </y-field>
+
         <y-button type="submit">Save changes</y-button>
       </form>
     `;
 
-    this.on("form#account-settings-form", "submit", (e) => {
+    this.on("form#account-settings-form", "submit", async (e) => {
       e.preventDefault();
-      // TODO: implement saving via API when backend is ready
+      // Read avatar input
+      const avatarHost = this.qs<HTMLElement>("#avatar");
+      const input = avatarHost?.shadowRoot?.querySelector("input") as HTMLInputElement | null;
+      const avatar = (input?.value || "").trim();
+      try {
+        if (avatar) {
+          const res = await fetch(`${(import.meta as any).env.VITE_API}/settings/avatar`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ avatar }),
+          });
+          if (!res.ok) throw new Error("failed");
+        }
+        // Optionally handle username/email later
+      } catch {}
     });
   }
 }

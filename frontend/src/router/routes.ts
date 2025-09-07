@@ -44,6 +44,14 @@ export const routes: Route[] = [
     component: async () => new (await import("../pages/Search")).default(),
   },
   {
+    path: "bookmarks",
+    component: async () => new (await import("../pages/Bookmarks")).default(),
+  },
+  {
+    path: "admin",
+    component: async () => new (await import("../pages/Admin")).default(),
+  },
+  {
     path: "mrok-ai",
     component: async () => new (await import("../pages/MrokAI")).default(),
   },

@@ -1,6 +1,6 @@
 import { ShadowComponent } from "../../utils/shadow-component";
 import { WC } from "../../utils/wc";
-import { isAuthenticated } from "../../stores/user";
+import { isAuthenticated, logout, getAuthCached } from "../../stores/user";
 import { render } from "../../router/index";
 
 @WC("main-layout")
@@ -12,12 +12,14 @@ export default class MainLayout extends ShadowComponent {
   }
 
   async connectedCallback() {
-    this.loggedIn = await isAuthenticated();
+    const cached = getAuthCached();
+    this.loggedIn = cached !== null ? cached : await isAuthenticated();
     this.render();
     this.addEventListeners();
 
     window.addEventListener("auth-changed", async () => {
-      this.loggedIn = await isAuthenticated();
+      const c = getAuthCached();
+      this.loggedIn = c !== null ? c : await isAuthenticated();
       this.render();
       this.attachActionHandlers();
     });
@@ -31,6 +33,24 @@ export default class MainLayout extends ShadowComponent {
         const href = (ev.currentTarget as HTMLElement).getAttribute(
           "data-href"
         );
+        if (href === "#logout") {
+          const confirmEl = this.qs("#confirm") as any;
+          confirmEl
+            .open({
+              title: "Log out",
+              description: "Are you sure you want to sign out?",
+              confirmText: "Log out",
+              cancelText: "Cancel",
+            })
+            .then((ok: boolean) => {
+              if (ok) {
+                logout();
+                history.pushState({}, "", "/");
+                render(location.pathname);
+              }
+            });
+          return;
+        }
         if (href) {
           history.pushState({}, "", href);
           render(location.pathname);
@@ -50,6 +70,7 @@ export default class MainLayout extends ShadowComponent {
       { icon: "bookmark", label: "Bookmarks", href: "/bookmarks" },
       { icon: "stars", label: "Mrok AI", href: "/mrok-ai" },
       { icon: "settings", label: "Settings", href: "/settings" },
+      { icon: "logout", label: "Logout", href: "#logout" },
     ];
 
     const guest = [
@@ -150,6 +171,8 @@ export default class MainLayout extends ShadowComponent {
           background: hsl(var(--secondary));
         }
       </style>
+
+  <y-confirm id="confirm"></y-confirm>
 
       <nav id="panel" data-open="false">
         <div id="logo">𝕐</div>

@@ -42,7 +42,7 @@ export default class Field extends ShadowComponent {
           border: 1px solid transparent;
         }
         .group:focus-within { box-shadow: var(--shadow-outline); }
-        .addon { padding: 0 var(--spacing-md); display: inline-flex; align-items: center; }
+        .addon { padding: 0 var(--spacing-md) 0 var(--spacing-sm); display: inline-flex; align-items: center; color: hsl(var(--muted-foreground)); transform: scale(1.5);}
         .addon[hidden] { display: none; }
 
         input {

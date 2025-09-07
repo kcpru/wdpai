@@ -1,25 +1,27 @@
 import { json, readBody } from "../util/http.js";
 import { hashPassword, verifyPassword } from "../util/hash.js";
-import { createUser, getUserByUsername } from "../models/users.js";
+import { createUser, getUserByUsername, updateAvatar } from "../models/users.js";
 import { createSession, deleteSession } from "../models/sessions.js";
 import { currentUser } from "../util/auth-mw.js";
 
 export async function authRouter(req, res, url) {
   if (req.method === "POST" && url.pathname === "/register") {
-    const { username, password } = await readBody(req);
+    const { username, password, avatar } = await readBody(req);
     if (!username || !password) {
       json(res, 400, { error: "need creds" });
       return true;
     }
 
-    try {
-      await createUser(username, hashPassword(password));
-      json(res, 201, { status: "ok" });
-      return true;
-    } catch {
+    const u = await createUser(username, hashPassword(password));
+    if (!u) {
       json(res, 409, { error: "user exists" });
       return true;
     }
+    if (avatar && typeof avatar === "string") {
+      await updateAvatar(u.id, avatar);
+    }
+    json(res, 201, { status: "ok" });
+    return true;
   }
 
   if (req.method === "POST" && url.pathname === "/login") {
@@ -45,7 +47,21 @@ export async function authRouter(req, res, url) {
       json(res, 401, { error: "not authed" });
       return true;
     }
-    json(res, 200, { id: user.id, username: user.username });
+  json(res, 200, { id: user.id, username: user.username, role: user.role, avatar: user.avatar || null });
+    return true;
+  }
+
+  // Update avatar
+  if (req.method === "POST" && url.pathname === "/settings/avatar") {
+    const user = await currentUser(req);
+    if (!user) {
+      json(res, 401, { error: "not authed" });
+      return true;
+    }
+    const body = await readBody(req).catch(() => ({}));
+    const avatar = typeof body?.avatar === "string" ? body.avatar : "";
+    const updated = await updateAvatar(user.id, avatar);
+    json(res, 200, { id: updated.id, username: updated.username, avatar: updated.avatar || null });
     return true;
   }
 

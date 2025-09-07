@@ -80,11 +80,16 @@ export default class LoginPage extends ShadowComponent {
 
       if (!res.ok) throw new Error((await res.json()).error || "Login failed");
 
-      // update auth cache if store exists
+      // update auth cache; fallback if dynamic import fails
       try {
         const mod = await import("../stores/user");
         mod.setAuth?.(true);
-      } catch {}
+      } catch {
+        try {
+          localStorage.setItem("auth", "1");
+        } catch {}
+        window.dispatchEvent(new Event("auth-changed"));
+      }
 
       const params = new URLSearchParams(location.search);
       const next = params.get("next") || "/";

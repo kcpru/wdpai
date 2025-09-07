@@ -12,4 +12,4 @@ WORKDIR /app
 COPY --from=base /app .
 
 EXPOSE 8000
-CMD ["sh","-c","node migrate.js up && node index.js"]
+CMD ["sh","-c","node migrate.js && node seed.js && node index.js"]

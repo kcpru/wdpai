@@ -11,6 +11,8 @@ export default class RegisterPage extends ShadowComponent {
         input { padding: .5rem; font-size: 1rem; }
         y-nav-link { margin-right: 1rem; }
         .lede { color: hsl(var(--muted-foreground)); }
+  .upload-row { display: flex; align-items: center; gap: var(--spacing-sm); }
+  .file-name { font-size: var(--text-xs); color: hsl(var(--muted-foreground)); }
       </style>
 
       <y-card>
@@ -38,6 +40,19 @@ export default class RegisterPage extends ShadowComponent {
             <span slot="error-text">Passwords must match exactly.</span>
           </y-field>
 
+          <y-field id="avatar" type="url">
+            <span slot="label">Avatar URL (optional)</span>
+            <span slot="helper-text">Paste a direct image URL or upload a file below.</span>
+          </y-field>
+          <div class="upload-row">
+            <input type="file" id="avatar-file" accept="image/*" hidden />
+            <y-button id="pick-file" variant="outline" aria-label="Browse file">
+              Browse file
+              <y-icon icon="image" slot="icon"></y-icon>
+            </y-button>
+            <span id="file-name" class="file-name" aria-live="polite"></span>
+          </div>
+
           <y-button aria-label="Create account" id="submit" type="submit">
             Create account
             <y-icon icon="person-add" slot="icon"></y-icon>
@@ -64,6 +79,16 @@ export default class RegisterPage extends ShadowComponent {
     this.on("#username", "input", touch);
 
     this.syncConfirmRegex();
+
+    // Wire styled file picker
+    const pickBtn = this.qs<HTMLElement>("#pick-file");
+    const fileInput = this.qs<HTMLInputElement>("#avatar-file");
+    const fileName = this.qs<HTMLSpanElement>("#file-name");
+    pickBtn.addEventListener("click-event" as any, () => fileInput.click());
+    fileInput.addEventListener("change", () => {
+      const f = fileInput.files?.[0];
+      fileName.textContent = f ? f.name : "";
+    });
   }
 
   private escapeRegex(s: string) {
@@ -88,9 +113,18 @@ export default class RegisterPage extends ShadowComponent {
   private async handleSubmit(e: SubmitEvent) {
     e.preventDefault();
 
-    const username = this.inputValue("#username").trim();
+  const username = this.inputValue("#username").trim();
     const password = this.inputValue("#password");
     const confirm = this.inputValue("#confirm");
+    const avatar = this.inputValue("#avatar").trim();
+    const fileEl = this.qs<HTMLInputElement>("#avatar-file");
+    let avatarDataUrl = avatar;
+    if (fileEl?.files && fileEl.files[0]) {
+      const { processAvatarImage } = await import("../utils/image-process");
+      try {
+        avatarDataUrl = await processAvatarImage(fileEl.files[0]);
+      } catch {}
+    }
 
     this.syncConfirmRegex();
 
@@ -111,7 +145,7 @@ export default class RegisterPage extends ShadowComponent {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+  body: JSON.stringify({ username, password, avatar: avatarDataUrl || undefined }),
       });
 
       if (!res.ok)
