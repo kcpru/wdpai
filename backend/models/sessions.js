@@ -20,3 +20,7 @@ export async function getUserByToken(token) {
   );
   return rows[0] || null;
 }
+
+export async function deleteSession(token) {
+  await pool.query(`DELETE FROM sessions WHERE token=$1`, [token]);
+}

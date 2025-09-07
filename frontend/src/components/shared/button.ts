@@ -91,7 +91,7 @@ export default class ButtonComponent extends ShadowComponent {
   }
 
   static get observedAttributes() {
-    return ["variant", "disabled", "icon-only"];
+    return ["variant", "disabled", "icon-only", "type"];
   }
 
   connectedCallback() {
@@ -100,16 +100,30 @@ export default class ButtonComponent extends ShadowComponent {
 
     button.addEventListener("click", (e) => {
       if (this.hasAttr("disabled")) return;
+      // If host is used as a submit button, submit the nearest form
+      if ((this.getAttribute("type") || "").toLowerCase() === "submit") {
+        const form = this.closest("form") as HTMLFormElement | null;
+        if (form) {
+          e.preventDefault();
+          // Use requestSubmit to trigger native submit + validation
+          form.requestSubmit();
+          return;
+        }
+      }
       this.emit("click-event", { bubbles: true });
     });
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
+  attributeChangedCallback(
+    name: string,
+    oldValue: string | null,
+    newValue: string | null
+  ) {
     const button = this.qs("button");
     if (!button) return;
 
     if (name === "variant") {
-      button.className = newValue;
+      button.className = newValue ?? "";
     } else if (name === "disabled") {
       newValue !== null
         ? button.setAttribute("disabled", "")
@@ -118,6 +132,9 @@ export default class ButtonComponent extends ShadowComponent {
       newValue !== null
         ? button.classList.add("icon-only")
         : button.classList.remove("icon-only");
+    } else if (name === "type") {
+      // Keep inner button type neutral; submission handled manually above
+      button.setAttribute("type", "button");
     }
   }
 }

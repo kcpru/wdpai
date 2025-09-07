@@ -7,75 +7,113 @@ export default class Select extends ShadowComponent {
     super();
 
     this.html`
-			<style>
-				:host {
-					display: inline-block;
-					font-family: sans-serif;
-				}
-				select {
-					padding: 10px 20px;
-					font-size: 16px;
-					border: none;
-					border-radius: 5px;
-					cursor: pointer;
-					outline: none;
-				}
-				select.primary {
-					background-color: #007bff;
-					color: white;
-				}
-				select:hover {
-					filter: brightness(1.1);
-				}
-				select:active {
-					filter: brightness(0.9);
-				}
-				select:disabled {
-					background-color: #e9ecef;
-					color: #6c757d;
-					cursor: not-allowed;
-				}
-			</style>
-			<select class="primary">
-				<slot></slot>
-			</select>
-			`;
+      <style>
+        :host { display: inline-block; color: inherit; }
+        :host([block]) { display: block; }
+        :host([block]) select { width: 100%; }
+
+        select {
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          width: 100%;
+          padding: var(--spacing-sm) var(--spacing-md);
+          font: inherit;
+          line-height: 1.2;
+          color: hsl(var(--foreground));
+          background: hsl(var(--input));
+          border: 1px solid hsl(var(--border));
+          border-radius: var(--radius-md);
+          outline: none;
+          cursor: pointer;
+          transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+        }
+        select:focus-visible { box-shadow: var(--shadow-outline); }
+        select:disabled { opacity: .6; cursor: not-allowed; }
+
+        /* variants */
+        :host([variant="outline"]) select {
+          background: hsl(var(--background));
+          color: hsl(var(--foreground));
+        }
+        :host([variant="ghost"]) select {
+          background: transparent;
+          border-color: transparent;
+        }
+
+        /* hide source options */
+        slot { display: none; }
+      </style>
+      <select id="native"></select>
+      <slot id="source"></slot>
+    `;
+
+    // sync assigned <option> nodes into internal <select>
+    const src = this.qs<HTMLSlotElement>("#source");
+    const select = this.qs<HTMLSelectElement>("#native");
+
+    const sync = () => {
+      const assigned = src.assignedNodes({ flatten: true });
+      // Clear existing
+      select.innerHTML = "";
+      for (const node of assigned) {
+        if (node.nodeType !== Node.ELEMENT_NODE) continue;
+        const el = node as HTMLElement;
+        if (el.tagName === "OPTION" || el.tagName === "OPTGROUP") {
+          select.appendChild(el.cloneNode(true));
+        }
+      }
+      // preserve selected by value
+      if (this._value != null) {
+        select.value = this._value;
+      }
+    };
+
+    src.addEventListener("slotchange", sync);
+    sync();
+
+    // re-emit change and keep value property in sync
+    select.addEventListener("change", () => {
+      this._value = select.value;
+      this.dispatchEvent(
+        new Event("change", { bubbles: true, composed: true })
+      );
+    });
   }
 
   static get observedAttributes() {
-    return ["variant", "disabled"];
+    return ["variant", "disabled", "block"];
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    const select = this.qs("select");
-    if (name === "variant") {
-      select.classList.remove(oldValue);
-      select.classList.add(newValue);
+  private _value: string | null = null;
+
+  attributeChangedCallback(
+    name: string,
+    _oldValue: string | null,
+    newValue: string | null
+  ) {
+    const select = this.qs<HTMLSelectElement>("#native");
+    if (name === "disabled") {
+      newValue !== null
+        ? select.setAttribute("disabled", "")
+        : select.removeAttribute("disabled");
     }
   }
 
-  get variant() {
-    return this.attr("variant") || "";
+  get value(): string {
+    const select = this.qs<HTMLSelectElement>("#native");
+    return select.value;
   }
-  set variant(value: string) {
-    this.setAttr("variant", value);
-  }
-
-  get value() {
-    return this.qs<HTMLSelectElement>("select").value;
-  }
-  set value(value) {
-    this.qs<HTMLSelectElement>("select").value = value;
+  set value(value: string) {
+    this._value = value;
+    const select = this.qs<HTMLSelectElement>("#native");
+    select.value = value;
   }
 
-  get disabled() {
+  get disabled(): boolean {
     return this.hasAttr("disabled");
   }
-  set disabled(value) {
-    if (value) {
-      this.setAttribute("disabled", "");
-    } else {
-      this.removeAttribute("disabled");
-    }
+  set disabled(v: boolean) {
+    v ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
   }
 }

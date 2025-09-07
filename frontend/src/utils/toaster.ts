@@ -8,13 +8,22 @@ export const toaster = {
     title?: string;
     type?: "info" | "success" | "error" | "warning" | "loading";
     duration?: number;
+    indeterminate?: boolean;
   }) => {
-    const { description, title, type, duration = 5000 } = options;
+    const {
+      description,
+      title,
+      type,
+      duration = 7000,
+      indeterminate,
+    } = options;
 
     const toast = document.createElement(`${WC_PREFIX}-toast`);
     toast.setAttribute("description", description || "");
     toast.setAttribute("title", title || "");
     toast.setAttribute("type", type || "info");
+    toast.setAttribute("duration", String(duration));
+    if (indeterminate) toast.setAttribute("indeterminate", "");
 
     document.body.appendChild(toast);
 
@@ -23,9 +32,11 @@ export const toaster = {
     const offset = toaster.toasts.length * 70;
     toast.style.bottom = `${offset + 20}px`;
 
-    setTimeout(() => {
-      toaster.removeToast(toast);
-    }, duration);
+    if (!indeterminate) {
+      setTimeout(() => {
+        toaster.removeToast(toast);
+      }, duration);
+    }
   },
 
   removeToast: (toast: HTMLElement) => {
@@ -50,14 +61,16 @@ export const toaster = {
       success?: { title?: string; description?: string };
       error?: { title?: string; description?: string };
       loading?: { title?: string; description?: string };
+      duration?: number;
     }
   ) => {
-    const { success, error, loading } = options;
+    const { success, error, loading, duration = 7000 } = options;
 
     const toast = document.createElement(`${WC_PREFIX}-toast`);
     toast.setAttribute("type", "loading");
     toast.setAttribute("description", loading?.description || "");
     toast.setAttribute("title", loading?.title || "");
+    toast.setAttribute("indeterminate", "");
 
     document.body.appendChild(toast);
     toaster.toasts.push(toast);
@@ -70,13 +83,20 @@ export const toaster = {
         toast.setAttribute("type", "success");
         toast.setAttribute("description", success?.description || "");
         toast.setAttribute("title", success?.title || "");
-        setTimeout(() => toaster.removeToast(toast), 3000); // Zniknięcie po 3 sekundach
+        toast.removeAttribute("indeterminate");
+        toast.setAttribute("duration", String(duration));
+        // restart bar animation for success state
+        (toast as any).updateBar?.(true);
+        setTimeout(() => toaster.removeToast(toast), duration);
       })
       .catch(() => {
         toast.setAttribute("type", "error");
         toast.setAttribute("description", error?.description || "");
         toast.setAttribute("title", error?.title || "");
-        setTimeout(() => toaster.removeToast(toast), 3000); // Zniknięcie po 3 sekundach
+        toast.removeAttribute("indeterminate");
+        toast.setAttribute("duration", String(duration));
+        (toast as any).updateBar?.(true);
+        setTimeout(() => toaster.removeToast(toast), duration);
       });
   },
 };

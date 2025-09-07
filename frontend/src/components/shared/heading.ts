@@ -23,19 +23,17 @@ export default class Heading extends ShadowComponent {
   renderHeading(level: string) {
     const validLevels = ["1", "2", "3", "4", "5", "6"];
     if (!validLevels.includes(level)) level = "1";
-    this.html`
+    const styles = `
       <style>
-        :host {
-          display: block;
-        }
+        :host { display: block; }
         h1 { font-size: 2rem; margin: 0; }
         h2 { font-size: 1.5rem; margin: 0; }
         h3 { font-size: 1.25rem; margin: 0; }
+        h4 { font-size: 1.1rem; margin: 0; }
+        h5 { font-size: 1rem; margin: 0; }
+        h6 { font-size: 0.875rem; margin: 0; }
       </style>
-
-      <slot></slot>
     `;
-    const slot = this.qs("slot");
-    slot.innerHTML = `<h${level}><slot></slot></h${level}>`;
+    this.root.innerHTML = `${styles}<h${level}><slot></slot></h${level}>`;
   }
 }

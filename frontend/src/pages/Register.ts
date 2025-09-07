@@ -19,11 +19,7 @@ export default class RegisterPage extends ShadowComponent {
           <p class="lede">A few details and you’re in — build, explore, and make things happen.</p>
         </div>
 
-        <form slot="body" id="register-form" novalidate>
-          <y-field id="email" type="email" required>
-            <span slot="label">Email address</span>
-            <span slot="error-text">Please enter a valid email address.</span>
-          </y-field>
+  <form slot="body" id="register-form" novalidate>
 
           <y-field id="username" type="text" required regex="^[\\w.-]{3,32}$">
             <span slot="label">Username</span>
@@ -46,6 +42,7 @@ export default class RegisterPage extends ShadowComponent {
             Create account
             <y-icon icon="person-add" slot="icon"></y-icon>
           </y-button>
+          <div class="error" id="form-error" hidden></div>
         </form>
       </y-card>
     `;
@@ -56,16 +53,15 @@ export default class RegisterPage extends ShadowComponent {
 
     const touch = () => {
       this.syncConfirmRegex();
-      (this.qs("#email") as any)?.validate?.();
       (this.qs("#username") as any)?.validate?.();
       (this.qs("#password") as any)?.validate?.();
       (this.qs("#confirm") as any)?.validate?.();
     };
 
-    this.on("#password", "input", touch, true);
-    this.on("#confirm", "input", touch, true);
-    this.on("#email", "input", touch, true);
-    this.on("#username", "input", touch, true);
+    this.on("#password", "input", touch);
+    this.on("#confirm", "input", touch);
+    // username/password fields only for backend API
+    this.on("#username", "input", touch);
 
     this.syncConfirmRegex();
   }
@@ -92,7 +88,6 @@ export default class RegisterPage extends ShadowComponent {
   private async handleSubmit(e: SubmitEvent) {
     e.preventDefault();
 
-    const email = this.inputValue("#email").trim();
     const username = this.inputValue("#username").trim();
     const password = this.inputValue("#password");
     const confirm = this.inputValue("#confirm");
@@ -100,7 +95,6 @@ export default class RegisterPage extends ShadowComponent {
     this.syncConfirmRegex();
 
     const invalid =
-      !this.isFieldValid("#email") ||
       !this.isFieldValid("#username") ||
       !this.isFieldValid("#password") ||
       !this.isFieldValid("#confirm");
@@ -117,7 +111,7 @@ export default class RegisterPage extends ShadowComponent {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, username, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       if (!res.ok)
@@ -126,8 +120,13 @@ export default class RegisterPage extends ShadowComponent {
         );
 
       this.qs("#form-error").setAttribute("hidden", "");
-      this.emit("navigate", "/");
-      history.pushState({}, "", "/");
+      const params = new URLSearchParams(location.search);
+      const next = params.get("next");
+      const target = next
+        ? `/login?next=${encodeURIComponent(next)}`
+        : "/login";
+      this.emit("navigate", target);
+      history.pushState({}, "", target);
       this.dispatchEvent(new PopStateEvent("popstate"));
     } catch (err: any) {
       const box = this.qs<HTMLDivElement>("#form-error");

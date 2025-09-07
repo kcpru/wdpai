@@ -11,6 +11,8 @@ export default class LoginPage extends ShadowComponent {
         input { padding: .5rem; font-size: 1rem; }
         y-nav-link { margin-right: 1rem; }
         .lede { color: hsl(var(--muted-foreground)); }
+        .error { color: #ff6b6b; font-size: .9rem; }
+        .error[hidden] { display: none; }
       </style>
 
       <y-card>
@@ -20,9 +22,9 @@ export default class LoginPage extends ShadowComponent {
         </div>
 
         <form slot="body" id="login-form" novalidate>
-          <y-field id="email" type="email" required>
-            <span slot="label">Email address</span>
-            <span slot="error-text">Please enter a valid email address.</span>
+          <y-field id="username" type="text" required regex="^[\\w.-]{3,32}$">
+            <span slot="label">Username</span>
+            <span slot="error-text">Enter your username.</span>
           </y-field>
 
           <y-field id="password" type="password" required regex="^.{8,}$">
@@ -43,6 +45,7 @@ export default class LoginPage extends ShadowComponent {
             Sign in
             <y-icon icon="login" slot="icon"></y-icon>
           </y-button>
+          <div class="error" hidden></div>
         </form>
       </y-card>
     `;
@@ -54,11 +57,17 @@ export default class LoginPage extends ShadowComponent {
 
   private async handleSubmit(e: SubmitEvent) {
     e.preventDefault();
-    const $ = (sel: string) => this.qs<HTMLInputElement>(sel);
+    const inputVal = (hostSel: string) => {
+      const host = this.qs<HTMLElement>(hostSel);
+      const input = host.shadowRoot?.querySelector(
+        "input"
+      ) as HTMLInputElement | null;
+      return input?.value ?? "";
+    };
 
     const body = {
-      username: $("#username").value.trim(),
-      password: $("#password").value,
+      username: inputVal("#username").trim(),
+      password: inputVal("#password"),
     };
 
     try {
@@ -71,8 +80,16 @@ export default class LoginPage extends ShadowComponent {
 
       if (!res.ok) throw new Error((await res.json()).error || "Login failed");
 
-      this.emit("navigate", "/");
-      history.pushState({}, "", "/");
+      // update auth cache if store exists
+      try {
+        const mod = await import("../stores/user");
+        mod.setAuth?.(true);
+      } catch {}
+
+      const params = new URLSearchParams(location.search);
+      const next = params.get("next") || "/";
+      this.emit("navigate", next);
+      history.pushState({}, "", next);
       this.dispatchEvent(new PopStateEvent("popstate"));
     } catch (err: any) {
       const box = this.qs<HTMLDivElement>(".error");

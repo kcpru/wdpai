@@ -2,10 +2,12 @@ import { WC_PREFIX } from "./constants/config";
 
 import "./styles.css";
 
-import "./router";
-import { render } from "./router";
+import "./router/index";
+import { render } from "./router/index";
+import { applyAppearanceFromStorage } from "./utils/appearance";
 
 window.addEventListener("DOMContentLoaded", () => {
+  applyAppearanceFromStorage();
   render(location.pathname);
 });
 
@@ -26,6 +28,7 @@ import "./components/shared/avatar";
 import "./components/shared/image";
 import "./components/shared/separator";
 import "./components/shared/heading";
+import "./components/shared/tabs";
 
 // import "./image.js"; - lazy loading, zoomable, etc.
 // import "./textarea.js";

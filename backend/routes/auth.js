@@ -1,7 +1,7 @@
 import { json, readBody } from "../util/http.js";
 import { hashPassword, verifyPassword } from "../util/hash.js";
 import { createUser, getUserByUsername } from "../models/users.js";
-import { createSession } from "../models/sessions.js";
+import { createSession, deleteSession } from "../models/sessions.js";
 import { currentUser } from "../util/auth-mw.js";
 
 export async function authRouter(req, res, url) {
@@ -46,6 +46,20 @@ export async function authRouter(req, res, url) {
       return true;
     }
     json(res, 200, { id: user.id, username: user.username });
+    return true;
+  }
+
+  if (req.method === "POST" && url.pathname === "/logout") {
+    const cookie = (req.headers.cookie || "")
+      .split("; ")
+      .find((c) => c.startsWith("token="))
+      ?.slice(6);
+    if (cookie) await deleteSession(cookie);
+    res.setHeader(
+      "Set-Cookie",
+      "token=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0"
+    );
+    json(res, 200, { status: "ok" });
     return true;
   }
 
