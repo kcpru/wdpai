@@ -26,17 +26,14 @@ export default class AdminPage extends ShadowComponent {
       <style>
   :host { display: block; }
   .container { width: var(--sm); max-width: 100%; display: grid; gap: var(--spacing-lg); }
-        table { border-collapse: separate; border-spacing: 0; width: 100%; background: hsl(var(--card)); color: hsl(var(--card-foreground)); border: 1px solid hsl(var(--border)); border-radius: var(--radius-lg); overflow: hidden; }
-        thead th { background: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); text-align: left; font-weight: var(--font-medium); }
-        th, td { padding: var(--spacing-sm) var(--spacing-md); border-bottom: 1px solid hsl(var(--border)); }
-        tbody tr:last-child td { border-bottom: none; }
-        tbody tr:hover { background: hsl(var(--secondary)); }
-        .actions { display: flex; gap: var(--spacing-xs); align-items: center; }
-        .role-cell { min-width: 9rem; }
-        .avatar { display: flex; align-items: center; }
-        y-avatar { --avatar-size: 1.75rem; }
   .lede { color: hsl(var(--muted-foreground)); margin: 0; }
-  .table-wrap { width: 100%; overflow-x: auto; }
+  .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--spacing-md); }
+  y-avatar { --avatar-size: 1.75rem; }
+  .card-top { display: flex; align-items: center; gap: var(--spacing-sm); min-width: 0; }
+  .name { font-weight: var(--font-medium); overflow-wrap: anywhere; word-break: break-word; }
+  .meta { display: flex; align-items: center; gap: var(--spacing-sm); flex-wrap: wrap; }
+  .created { font-size: var(--text-xs); color: hsl(var(--muted-foreground)); flex: 1 1 auto; min-width: 0; }
+  .actions { display: inline-flex; gap: var(--spacing-xs); flex: 0 0 auto; }
       </style>
       <div class="container">
         <y-card>
@@ -45,32 +42,28 @@ export default class AdminPage extends ShadowComponent {
             <p class="lede">Manage roles and remove accounts.</p>
           </div>
 
-          <div slot="body" class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>ID</th><th>Avatar</th><th>Username</th><th class="role-cell">Role</th><th>Created</th><th>Actions</th></tr>
-              </thead>
-              <tbody>
-                ${this.users.map(u => `
-                  <tr>
-                    <td>${u.id}</td>
-                    <td class="avatar">${u.avatar ? `<y-avatar src="${u.avatar}" alt="${u.username}"></y-avatar>` : `<y-avatar></y-avatar>`}</td>
-                    <td>${u.username}</td>
-                    <td class="role-cell">
-                      <y-select variant="outline" data-id="${u.id}" class="role">
-                        <option value="user" ${u.role === 'user' ? 'selected' : ''}>user</option>
-                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>admin</option>
-                      </y-select>
-                    </td>
-                    <td>${u.created_at ?? ''}</td>
-                    <td class="actions">
-                      <y-button data-action="save" data-id="${u.id}" variant="outline">Save</y-button>
-                      <y-button data-action="delete" data-id="${u.id}" variant="ghost">Delete</y-button>
-                    </td>
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
+          <div slot="body" class="users-grid">
+            ${this.users.map(u => `
+              <y-card class="user-card">
+                <div slot="header" class="card-top">
+                  ${u.avatar ? `<y-avatar src="${u.avatar}" alt="${u.username}"></y-avatar>` : `<y-avatar></y-avatar>`}
+                  <div class="name">@${u.username} <span style="opacity:.6">#${u.id}</span></div>
+                </div>
+                <div slot="body">
+                  <y-select variant="outline" data-id="${u.id}" class="role">
+                    <option value="user" ${u.role === 'user' ? 'selected' : ''}>user</option>
+                    <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>admin</option>
+                  </y-select>
+                </div>
+                <div slot="footer" class="meta">
+                  <span class="created">${this.fmtDate(u.created_at)}</span>
+                  <span class="actions">
+                    <y-button data-action="save" data-id="${u.id}" variant="outline">Save</y-button>
+                    <y-button data-action="delete" data-id="${u.id}" variant="ghost">Delete</y-button>
+                  </span>
+                </div>
+              </y-card>
+            `).join("")}
           </div>
         </y-card>
       </div>
@@ -115,5 +108,16 @@ export default class AdminPage extends ShadowComponent {
         }
       })
     );
+  }
+
+  private fmtDate(s?: string | null): string {
+    if (!s) return "";
+    const d = new Date(s);
+    if (isNaN(d.getTime())) return String(s);
+    try {
+      return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(d);
+    } catch {
+      return d.toLocaleString();
+    }
   }
 }

@@ -48,6 +48,11 @@ export const routes: Route[] = [
     component: async () => new (await import("../pages/Bookmarks")).default(),
   },
   {
+    path: "notifications",
+    component: async () =>
+      new (await import("../pages/Notifications")).default(),
+  },
+  {
     path: "admin",
     component: async () => new (await import("../pages/Admin")).default(),
   },

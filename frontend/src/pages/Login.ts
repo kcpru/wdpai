@@ -1,5 +1,7 @@
 import { ShadowComponent } from "../utils/shadow-component";
 import { WC } from "../utils/wc";
+import { toaster } from "../utils/toaster";
+import { render } from "../router/index";
 
 @WC("login-page")
 export default class LoginPage extends ShadowComponent {
@@ -91,11 +93,18 @@ export default class LoginPage extends ShadowComponent {
         window.dispatchEvent(new Event("auth-changed"));
       }
 
-      const params = new URLSearchParams(location.search);
-      const next = params.get("next") || "/";
-      this.emit("navigate", next);
-      history.pushState({}, "", next);
-      this.dispatchEvent(new PopStateEvent("popstate"));
+      // success toast
+      toaster.create({
+        type: "success",
+        title: "Signed in",
+        description: "You're now signed in.",
+      });
+
+      // Always redirect to home after successful login
+      const target = "/";
+      this.emit("navigate", target);
+      history.pushState({}, "", target);
+      render(location.pathname);
     } catch (err: any) {
       const box = this.qs<HTMLDivElement>(".error");
       box.textContent = err.message ?? String(err);

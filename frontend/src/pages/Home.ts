@@ -85,7 +85,8 @@ export default class Home extends ShadowComponent {
               text="${this.escape(p.content)}"
               images='${JSON.stringify(p.images || [])}'
               username="${this.escape(p.username || "")}"
-              avatar="${this.escape((p as any).avatar || "") }"
+              avatar="${(p as any).avatar || "" }"
+              created_at="${p.created_at || ""}"
               likes="${p.likes_count ?? 0}"
               bookmarks="${p.bookmarks_count ?? 0}"
               ${p.liked ? "liked" : ""}

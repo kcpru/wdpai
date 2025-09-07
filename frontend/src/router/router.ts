@@ -1,4 +1,3 @@
-// router.ts — v4 (fault-tolerant nested outlets)
 import { routes } from "./routes";
 import { middlewares } from "./middleware";
 import NotFound from "../pages/NotFound";

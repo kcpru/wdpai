@@ -1,5 +1,7 @@
 import { ShadowComponent } from "../utils/shadow-component";
 import { WC } from "../utils/wc";
+import { toaster } from "../utils/toaster";
+import { render } from "../router/index";
 
 @WC("register-page")
 export default class RegisterPage extends ShadowComponent {
@@ -113,7 +115,7 @@ export default class RegisterPage extends ShadowComponent {
   private async handleSubmit(e: SubmitEvent) {
     e.preventDefault();
 
-  const username = this.inputValue("#username").trim();
+    const username = this.inputValue("#username").trim();
     const password = this.inputValue("#password");
     const confirm = this.inputValue("#confirm");
     const avatar = this.inputValue("#avatar").trim();
@@ -145,7 +147,11 @@ export default class RegisterPage extends ShadowComponent {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username, password, avatar: avatarDataUrl || undefined }),
+        body: JSON.stringify({
+          username,
+          password,
+          avatar: avatarDataUrl || undefined,
+        }),
       });
 
       if (!res.ok)
@@ -154,14 +160,19 @@ export default class RegisterPage extends ShadowComponent {
         );
 
       this.qs("#form-error").setAttribute("hidden", "");
-      const params = new URLSearchParams(location.search);
-      const next = params.get("next");
-      const target = next
-        ? `/login?next=${encodeURIComponent(next)}`
-        : "/login";
+
+      // success toast
+      toaster.create({
+        type: "success",
+        title: "Account created",
+        description: "Your account has been created successfully.",
+      });
+
+      // Always redirect to login after successful registration
+      const target = "/login";
       this.emit("navigate", target);
       history.pushState({}, "", target);
-      this.dispatchEvent(new PopStateEvent("popstate"));
+      render(location.pathname);
     } catch (err: any) {
       const box = this.qs<HTMLDivElement>("#form-error");
       box.textContent = err?.message ?? "Nie udało się utworzyć konta.";

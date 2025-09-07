@@ -38,3 +38,26 @@ CREATE TABLE IF NOT EXISTS bookmarks (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   PRIMARY KEY (user_id, post_id)
 );
+
+-- Notifications: simple activity feed (e.g., when someone likes your post)
+CREATE TABLE IF NOT EXISTS notifications (
+  id         SERIAL PRIMARY KEY,
+  user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, -- recipient
+  actor_id   INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, -- who performed the action
+  type       TEXT    NOT NULL, -- e.g., 'like'
+  post_id    INTEGER REFERENCES posts(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  read       BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+-- Avoid duplicate like notifications for the same actor/post/recipient
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND indexname = 'uniq_like_notification'
+  ) THEN
+    CREATE UNIQUE INDEX uniq_like_notification
+      ON notifications (user_id, actor_id, type, post_id)
+      WHERE type = 'like';
+  END IF;
+END$$;

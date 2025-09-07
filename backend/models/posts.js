@@ -12,7 +12,7 @@ export async function createPost(userId, content, images = []) {
 
 export async function listPosts(limit = 50, offset = 0, viewerId = null) {
   const { rows } = await pool.query(
-  `SELECT p.id, p.content, p.images, p.created_at,
+    `SELECT p.id, p.content, p.images, p.created_at,
       u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,
@@ -46,6 +46,12 @@ export async function deletePost(postId, userId) {
 }
 
 export async function toggleLike(postId, userId, wantLike) {
+  // find post owner for notifications
+  const ownerRes = await pool.query(`SELECT user_id FROM posts WHERE id=$1`, [
+    postId,
+  ]);
+  const owner_id = ownerRes.rows[0]?.user_id || null;
+
   if (wantLike) {
     await pool.query(
       `INSERT INTO post_likes (post_id, user_id)
@@ -54,13 +60,16 @@ export async function toggleLike(postId, userId, wantLike) {
       [postId, userId]
     );
   } else {
-    await pool.query(`DELETE FROM post_likes WHERE post_id=$1 AND user_id=$2`, [postId, userId]);
+    await pool.query(`DELETE FROM post_likes WHERE post_id=$1 AND user_id=$2`, [
+      postId,
+      userId,
+    ]);
   }
   const { rows } = await pool.query(
     `SELECT COUNT(*)::int AS likes_count FROM post_likes WHERE post_id=$1`,
     [postId]
   );
-  return { likes_count: rows[0]?.likes_count ?? 0 };
+  return { likes_count: rows[0]?.likes_count ?? 0, owner_id };
 }
 
 export async function toggleBookmark(postId, userId, want) {
@@ -72,14 +81,17 @@ export async function toggleBookmark(postId, userId, want) {
       [postId, userId]
     );
   } else {
-    await pool.query(`DELETE FROM bookmarks WHERE post_id=$1 AND user_id=$2`, [postId, userId]);
+    await pool.query(`DELETE FROM bookmarks WHERE post_id=$1 AND user_id=$2`, [
+      postId,
+      userId,
+    ]);
   }
   return { ok: true };
 }
 
 export async function listBookmarkedBy(userId, limit = 50, offset = 0) {
   const { rows } = await pool.query(
-  `SELECT p.id, p.content, p.images, p.created_at,
+    `SELECT p.id, p.content, p.images, p.created_at,
       u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,

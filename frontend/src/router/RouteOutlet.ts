@@ -1,4 +1,3 @@
-import { WC_PREFIX } from "../constants/config";
 import { ShadowComponent } from "../utils/shadow-component";
 import { render } from "./router";
 import { WC } from "../utils/wc";

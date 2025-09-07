@@ -1,6 +1,18 @@
 import { json, readBody } from "../util/http.js";
 import { currentUser } from "../util/auth-mw.js";
-import { createPost, listPosts, deletePost, toggleLike, toggleBookmark, listBookmarkedBy, searchPosts } from "../models/posts.js";
+import {
+  createPost,
+  listPosts,
+  deletePost,
+  toggleLike,
+  toggleBookmark,
+  listBookmarkedBy,
+  searchPosts,
+} from "../models/posts.js";
+import {
+  createLikeNotification,
+  removeLikeNotification,
+} from "../models/notifications.js";
 import { searchUsers } from "../models/users.js";
 
 export async function postsRouter(req, res, url) {
@@ -80,7 +92,9 @@ export async function postsRouter(req, res, url) {
     const limit = Number(url.searchParams.get("limit") || 20);
     const offset = Number(url.searchParams.get("offset") || 0);
     const user = await currentUser(req).catch(() => null);
-    const posts = q ? await searchPosts(q, limit, offset, user?.id ?? null) : [];
+    const posts = q
+      ? await searchPosts(q, limit, offset, user?.id ?? null)
+      : [];
     json(res, 200, { posts });
     return true;
   }
@@ -96,7 +110,23 @@ export async function postsRouter(req, res, url) {
     const body = await readBody(req).catch(() => ({}));
     const like = Boolean(body?.like);
     const data = await toggleLike(id, user.id, like);
-    json(res, 200, { liked: like, ...data });
+    // create/remove notification for the post owner
+    if (data.owner_id && data.owner_id !== user.id) {
+      if (like) {
+        await createLikeNotification({
+          recipientId: data.owner_id,
+          actorId: user.id,
+          postId: id,
+        });
+      } else {
+        await removeLikeNotification({
+          recipientId: data.owner_id,
+          actorId: user.id,
+          postId: id,
+        });
+      }
+    }
+    json(res, 200, { liked: like, likes_count: data.likes_count });
     return true;
   }
 

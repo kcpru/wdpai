@@ -17,6 +17,14 @@ export default class Avatar extends ShadowComponent {
 					width: var(--avatar-size);
 					height: var(--avatar-size);
 				}
+        #avatar {
+          width: 100%;
+          height: 100%;
+          border-radius: inherit;
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+        }
 			</style>
 
 			<div id="avatar"></div>

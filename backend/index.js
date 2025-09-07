@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { authRouter } from "./routes/auth.js";
 import { adminRouter } from "./routes/admin.js";
 import { postsRouter } from "./routes/posts.js";
+import { notificationsRouter } from "./routes/notifications.js";
 import { json } from "./util/http.js";
 
 const PORT = process.env.PORT || 8000;
@@ -26,7 +27,7 @@ createServer(async (req, res) => {
     "Access-Control-Allow-Methods",
     typeof reqMethod === "string" && reqMethod.length
       ? reqMethod
-  : "GET,POST,DELETE,OPTIONS"
+      : "GET,POST,DELETE,OPTIONS"
   );
   res.setHeader("Access-Control-Max-Age", "600");
 
@@ -41,6 +42,7 @@ createServer(async (req, res) => {
   if (await authRouter(req, res, url)) return;
   if (await adminRouter(req, res, url)) return;
   if (await postsRouter(req, res, url)) return;
+  if (await notificationsRouter(req, res, url)) return;
 
   json(res, 404, { error: "not found" });
 }).listen(PORT, () => console.log("API listening on http://localhost:" + PORT));

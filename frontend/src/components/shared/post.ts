@@ -3,18 +3,21 @@ import { WC } from "../../utils/wc";
 
 @WC("post")
 export default class Post extends ShadowComponent {
-  static observedAttributes = [
-    "pid",
-    "text",
-    "images",
-    "author",
-    "username",
-    "likes",
-    "liked",
-    "bookmarked",
-    "bookmarks",
-    "avatar",
-  ];
+  static get observedAttributes() {
+    return [
+      "pid",
+      "text",
+      "images",
+      "author",
+      "username",
+      "likes",
+      "liked",
+      "bookmarked",
+      "bookmarks",
+      "avatar",
+      "created_at",
+    ];
+  }
 
   postId?: number;
   text = "";
@@ -26,6 +29,8 @@ export default class Post extends ShadowComponent {
   liked = false;
   bookmarked = false;
   bookmarks = 0;
+
+  createdAt?: string;
 
   constructor() {
     super();
@@ -51,13 +56,14 @@ export default class Post extends ShadowComponent {
     } catch {
       this.images = [];
     }
-  this.author = this.hasAttr("author");
-  this.username = this.attr("username") ?? "";
-  this.avatar = this.attr("avatar") ?? "";
-  this.likes = Number(this.attr("likes") || 0) || 0;
-  this.liked = this.hasAttr("liked");
-  this.bookmarked = this.hasAttr("bookmarked");
-  this.bookmarks = Number(this.attr("bookmarks") || 0) || 0;
+    this.author = this.hasAttr("author");
+    this.username = this.attr("username") ?? "";
+    this.avatar = this.attr("avatar") ?? "";
+    this.likes = Number(this.attr("likes") || 0) || 0;
+    this.liked = this.hasAttr("liked");
+    this.bookmarked = this.hasAttr("bookmarked");
+    this.bookmarks = Number(this.attr("bookmarks") || 0) || 0;
+    this.createdAt = this.attr("created_at") || undefined;
   }
 
   render() {
@@ -113,8 +119,8 @@ export default class Post extends ShadowComponent {
       </style>
 
     <div class="header">
-  <y-avatar src="${this.avatar || "https://picsum.photos/300/300"}" alt="Avatar image"></y-avatar>
-  <div id="username">${this.username || "User"}</div>
+  <y-avatar src="${this.avatar || ""}" alt="Avatar image"></y-avatar>
+  <div id="username">${this.username || ""}</div>
         <div id="timestamp">–</div>
       </div>
 
@@ -137,21 +143,42 @@ export default class Post extends ShadowComponent {
         <div style="flex-grow:1"></div>
         ${this.author ? this.renderAction("trash", "Delete") : ""}
       </div>
+
+  <y-confirm id="confirm"></y-confirm>
     `;
 
     // Wire delete when author and id is present
-  if (this.author && this.postId) {
+    if (this.author && this.postId) {
       const actions = this.root.querySelectorAll("#actions y-button");
       const last = actions[actions.length - 1] as HTMLElement | undefined;
-      last?.addEventListener("click-event" as any, () => this.deleteSelf());
+      last?.addEventListener("click-event" as any, () =>
+        this.confirmAndDelete()
+      );
     }
 
     // Wire like/share/bookmark
     const actions = this.root.querySelectorAll("#actions y-button");
-    const [likeBtn, , shareBtn, bookmarkBtn] = Array.from(actions) as HTMLElement[];
+    const [likeBtn, , shareBtn, bookmarkBtn] = Array.from(
+      actions
+    ) as HTMLElement[];
     likeBtn?.addEventListener("click-event" as any, () => this.toggleLike());
     shareBtn?.addEventListener("click-event" as any, () => this.share());
-    bookmarkBtn?.addEventListener("click-event" as any, () => this.toggleBookmark());
+    bookmarkBtn?.addEventListener("click-event" as any, () =>
+      this.toggleBookmark()
+    );
+  }
+
+  private async confirmAndDelete() {
+    if (!this.postId) return;
+    const confirmEl = this.qs("#confirm") as any;
+    const ok = await confirmEl?.open?.({
+      title: "Delete post",
+      description: "Delete this post? This action cannot be undone.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+    });
+    if (!ok) return;
+    await this.deleteSelf();
   }
 
   renderAction(icon: string, tooltip: string, label?: string) {
@@ -170,15 +197,22 @@ export default class Post extends ShadowComponent {
   async deleteSelf() {
     if (!this.postId) return;
     try {
-      const resp = await fetch(import.meta.env.VITE_API + "/posts/" + this.postId, {
-        method: "DELETE",
-        credentials: "include",
-      });
-  if (!(resp.ok || resp.status === 204)) throw new Error("delete_failed");
-  // Optimistically remove from DOM
-  this.remove();
+      const resp = await fetch(
+        import.meta.env.VITE_API + "/posts/" + this.postId,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+      if (!(resp.ok || resp.status === 204)) throw new Error("delete_failed");
+      // Optimistically remove from DOM
+      this.remove();
       this.dispatchEvent(
-        new CustomEvent("post-deleted", { detail: { id: this.postId }, bubbles: true, composed: true })
+        new CustomEvent("post-deleted", {
+          detail: { id: this.postId },
+          bubbles: true,
+          composed: true,
+        })
       );
     } catch {
       // Optionally show a toast if available via event or global
@@ -193,12 +227,15 @@ export default class Post extends ShadowComponent {
     this.likes += next ? 1 : -1;
     this.render();
     try {
-      const resp = await fetch(import.meta.env.VITE_API + "/posts/" + this.postId + "/like", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ like: next }),
-      });
+      const resp = await fetch(
+        import.meta.env.VITE_API + "/posts/" + this.postId + "/like",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ like: next }),
+        }
+      );
       if (!resp.ok) throw new Error("like_failed");
       const data = await resp.json();
       // sync from server just in case
@@ -220,12 +257,15 @@ export default class Post extends ShadowComponent {
     this.bookmarks += next ? 1 : -1;
     this.render();
     try {
-      const resp = await fetch(import.meta.env.VITE_API + "/posts/" + this.postId + "/bookmark", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ bookmark: next }),
-      });
+      const resp = await fetch(
+        import.meta.env.VITE_API + "/posts/" + this.postId + "/bookmark",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ bookmark: next }),
+        }
+      );
       if (!resp.ok) throw new Error("bookmark_failed");
     } catch {
       this.bookmarked = !next; // rollback
@@ -236,7 +276,8 @@ export default class Post extends ShadowComponent {
 
   async share() {
     try {
-      const url = location.origin + location.pathname + "#post-" + (this.postId ?? "");
+      const url =
+        location.origin + location.pathname + "#post-" + (this.postId ?? "");
       if (navigator.share) {
         await navigator.share({ title: document.title, url });
       } else if (navigator.clipboard) {
@@ -250,7 +291,8 @@ export default class Post extends ShadowComponent {
 
   renderTimestamp() {
     const timestamp = this.qs<HTMLDivElement>("#timestamp");
-    timestamp.textContent = this.timeAgo(new Date());
+    const date = this.createdAt ? new Date(this.createdAt) : new Date();
+    timestamp.textContent = this.timeAgo(date);
   }
 
   timeAgo(date: Date): string {

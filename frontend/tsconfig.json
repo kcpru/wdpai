@@ -7,5 +7,6 @@
     "types": ["vite/client"],
     "forceConsistentCasingInFileNames": true,
     "strict": true
-  }
+  },
+  "exclude": ["src/pages/Notifications.ts"]
 }
