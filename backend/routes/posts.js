@@ -119,11 +119,16 @@ export async function postsRouter(req, res, url) {
     const images = Array.isArray(body.images) ? body.images : [];
     const vibe =
       typeof body.vibe === "string" && body.vibe.length <= 4 ? body.vibe : null;
+    const location =
+      typeof body.location === "string" && body.location.length <= 120
+        ? body.location
+        : null;
     const post = await createPost(
       user.id,
       body.content.slice(0, 1000),
       images,
-      vibe
+      vibe,
+      location
     );
     json(res, 201, { post });
     return true;

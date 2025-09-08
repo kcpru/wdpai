@@ -38,16 +38,22 @@ export default class ButtonComponent extends ShadowComponent {
         }
 
         button.primary {
-          background-color: hsl(var(--secondary-foreground));
-          color: hsl(var(--secondary));
+          background-color: hsl(var(--button-primary));
+          color: hsl(var(--primary-foreground));
+          border: 1px solid hsl(var(--button-primary));
+        }
+        button:not([disabled]).primary:hover {
+          filter: brightness(0.95);
         }
 
         button.secondary {
           background-color: hsl(var(--secondary));
           color: hsl(var(--secondary-foreground));
+          border: 1px solid hsl(var(--border));
         }
+        button:not([disabled]).secondary:hover { filter: brightness(0.98); }
 
-        button.outline {
+  button.outline {
           background-color: hsl(var(--background));
           color: hsl(var(--secondary-foreground));
           border: 1px solid hsl(var(--border));
@@ -57,7 +63,7 @@ export default class ButtonComponent extends ShadowComponent {
           background-color: hsl(var(--secondary));
         }
 
-        button.ghost {
+  button.ghost {
           background-color: transparent;
           color: hsl(var(--secondary-foreground));
         }

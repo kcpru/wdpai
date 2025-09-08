@@ -1,18 +1,24 @@
 import pool from "../db/pool.js";
 
-export async function createPost(userId, content, images = [], vibe = null) {
+export async function createPost(
+  userId,
+  content,
+  images = [],
+  vibe = null,
+  location = null
+) {
   const { rows } = await pool.query(
-    `INSERT INTO posts (user_id, content, images, vibe)
-   VALUES ($1, $2, $3, $4)
-   RETURNING id, user_id, content, images, vibe, created_at`,
-    [userId, content, images, vibe]
+    `INSERT INTO posts (user_id, content, images, vibe, location)
+   VALUES ($1, $2, $3, $4, $5)
+   RETURNING id, user_id, content, images, vibe, location, created_at`,
+    [userId, content, images, vibe, location]
   );
   return rows[0];
 }
 
 export async function listPosts(limit = 50, offset = 0, viewerId = null) {
   const { rows } = await pool.query(
-    `SELECT p.id, p.content, p.images, p.vibe, p.created_at,
+    `SELECT p.id, p.content, p.images, p.vibe, p.location, p.created_at,
       u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,
@@ -48,7 +54,7 @@ export async function listPostsByUser(
   viewerId = null
 ) {
   const { rows } = await pool.query(
-    `SELECT p.id, p.content, p.images, p.vibe, p.created_at,
+    `SELECT p.id, p.content, p.images, p.vibe, p.location, p.created_at,
       u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,
@@ -139,7 +145,7 @@ export async function toggleBookmark(postId, userId, want) {
 
 export async function listBookmarkedBy(userId, limit = 50, offset = 0) {
   const { rows } = await pool.query(
-    `SELECT p.id, p.content, p.images, p.vibe, p.created_at,
+    `SELECT p.id, p.content, p.images, p.vibe, p.location, p.created_at,
       u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,

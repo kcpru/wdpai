@@ -86,6 +86,7 @@ export default class Home extends ShadowComponent {
                 images='${JSON.stringify(p.images || [])}'
                 username="${this.escape(p.username || "")}"
                 vibe="${(p as any).vibe || ""}"
+                location="${(p as any).location || ""}"
                 avatar="${(p as any).avatar || ""}"
                 created_at="${p.created_at || ""}"
                 likes="${p.likes_count ?? 0}"

@@ -38,8 +38,8 @@ export default class Field extends ShadowComponent {
           border-radius: var(--radius-md);
           padding: var(--spacing-sm);
           font-size: var(--text-base);
-          background: hsl(var(--input));
-          border: 1px solid transparent;
+          border: 1px solid hsl(var(--border));
+          background-color: hsl(var(--secondary));
         }
         .group:focus-within { box-shadow: var(--shadow-outline); }
         .addon { padding: 0 var(--spacing-md) 0 var(--spacing-sm); display: inline-flex; align-items: center; color: hsl(var(--muted-foreground)); transform: scale(1.5);}

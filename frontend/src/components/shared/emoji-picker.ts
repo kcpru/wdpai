@@ -4,10 +4,9 @@ import { WC } from "../../utils/wc";
 @WC("emoji-picker")
 export default class EmojiPicker extends ShadowComponent {
   static get observedAttributes() {
-    return ["open", "value"];
+    return ["open", "value", "instant"];
   }
 
-  private _value: string | null = null;
   private EMOJIS = [
     "😀",
     "😂",
@@ -35,54 +34,88 @@ export default class EmojiPicker extends ShadowComponent {
     "🥳",
   ];
 
+  connectedCallback() {
+    if (!this.hasAttribute("instant")) this.setAttribute("instant", "");
+    this.render();
+    const ps = this.qs<any>("#ps");
+    if (ps) {
+      ps.items = this.EMOJIS;
+      ps.placeholder = "Search emoji";
+      // forward change/cancel
+      ps.addEventListener("change", (e: any) => {
+        const v = e?.detail?.value || null;
+        if (v) this.setAttribute("value", v);
+        else this.removeAttribute("value");
+        this.dispatchEvent(
+          new CustomEvent("change", {
+            detail: { value: v },
+            bubbles: true,
+            composed: true,
+          })
+        );
+      });
+      ps.addEventListener("cancel", () => {
+        this.dispatchEvent(
+          new CustomEvent("cancel", { bubbles: true, composed: true })
+        );
+      });
+    }
+  }
+
+  attributeChangedCallback(name: string) {
+    const ps = this.qs<any>("#ps");
+    if (!ps) return;
+    if (name === "value") {
+      const v = this.getAttribute("value");
+      ps.value = v && v.length ? v : null;
+    }
+    if (name === "instant") ps.instant = this.hasAttribute("instant");
+    if (name === "open") ps.open = this.hasAttribute("open");
+  }
+
   get value(): string | null {
-    return this._value;
+    return this.getAttribute("value");
   }
   set value(v: string | null) {
-    this._value = v && v.length ? v : null;
-    if (this._value) this.setAttribute("value", this._value);
+    if (v) this.setAttribute("value", v);
     else this.removeAttribute("value");
-    this.render();
+    const ps = this.qs<any>("#ps");
+    if (ps) ps.value = v;
   }
 
   get open(): boolean {
     return this.hasAttribute("open");
   }
   set open(v: boolean) {
+    const ps = this.qs<any>("#ps");
+    if (ps) ps.open = v;
     this.toggleAttribute("open", v);
-    this.render();
   }
 
-  connectedCallback() {
-    this.render();
-    this.root.addEventListener("click", (e) => {
-      const t = e.target as HTMLElement;
-      if (t?.dataset?.emoji) {
-        this.value = t.dataset.emoji || null;
-        this.dispatchEvent(
-          new CustomEvent("change", {
-            detail: { value: this.value },
-            bubbles: true,
-            composed: true,
-          })
-        );
-      }
-    });
+  get instant(): boolean {
+    return this.hasAttribute("instant");
+  }
+  set instant(v: boolean) {
+    this.toggleAttribute("instant", v);
+    const ps = this.qs<any>("#ps");
+    if (ps) ps.instant = v;
   }
 
-  attributeChangedCallback(name: string) {
-    if (name === "value") {
-      const v = this.getAttribute("value");
-      this._value = v && v.length ? v : null;
-    }
-    this.render();
+  openAt(anchor: HTMLElement) {
+    const ps = this.qs<any>("#ps");
+    this.setAttribute("open", "");
+    ps?.openAt(anchor);
   }
-
+  close() {
+    const ps = this.qs<any>("#ps");
+    this.removeAttribute("open");
+    ps?.close();
+  }
   clear() {
     this.value = null;
     this.dispatchEvent(
       new CustomEvent("change", {
-        detail: { value: this.value },
+        detail: { value: null },
         bubbles: true,
         composed: true,
       })
@@ -90,16 +123,11 @@ export default class EmojiPicker extends ShadowComponent {
   }
 
   render() {
-    const isOpen = this.open;
-    const v = this._value;
+    const instant = this.hasAttribute("instant");
+    const v = this.getAttribute("value") || "";
     this.html`
-      <style>
-        :host { display: ${isOpen ? "grid" : "none"}; grid-template-columns: repeat(8, 2rem); gap: .25rem; padding: .5rem; border: 1px solid hsl(var(--border)); border-radius: var(--radius-md); background: hsl(var(--popover)); color: hsl(var(--popover-foreground)); }
-        button.emoji { width: 2rem; height: 2rem; display: grid; place-items: center; border: 1px solid transparent; background: transparent; border-radius: .5rem; cursor: pointer; font-size: 1.1rem; }
-        button.emoji[aria-pressed="true"] { border-color: hsl(var(--primary)); box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2) inset; }
-        button.emoji:focus-visible { outline: none; box-shadow: var(--shadow-outline); }
-      </style>
-      ${this.EMOJIS.map((e) => `<button type="button" class="emoji" data-emoji="${e}" aria-label="${e}" aria-pressed="${v === e}">${e}</button>`).join("")}
+      <style>:host{display:contents}</style>
+      <y-popup-select id="ps" ${instant ? "instant" : ""} value="${v}"></y-popup-select>
     `;
   }
 }

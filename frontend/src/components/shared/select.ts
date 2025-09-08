@@ -21,8 +21,8 @@ export default class Select extends ShadowComponent {
           font: inherit;
           line-height: 1.2;
           color: hsl(var(--foreground));
-          background: hsl(var(--input));
           border: 1px solid hsl(var(--border));
+          background-color: hsl(var(--secondary));
           border-radius: var(--radius-md);
           outline: none;
           cursor: pointer;

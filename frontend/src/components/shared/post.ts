@@ -12,6 +12,7 @@ export default class Post extends ShadowComponent {
       "author",
       "username",
       "vibe",
+      "location",
       "likes",
       "liked",
       "bookmarked",
@@ -29,6 +30,7 @@ export default class Post extends ShadowComponent {
   author = false;
   username = "";
   vibe: string | null = null;
+  location: string | null = null;
   avatar = "";
   likes = 0;
   liked = false;
@@ -71,6 +73,7 @@ export default class Post extends ShadowComponent {
     this.author = this.hasAttr("author");
     this.username = this.attr("username") ?? "";
     this.vibe = this.attr("vibe") || null;
+    this.location = this.attr("location") || null;
     this.avatar = this.attr("avatar") ?? "";
     this.likes = Number(this.attr("likes") || 0) || 0;
     this.liked = this.hasAttr("liked");
@@ -147,7 +150,7 @@ export default class Post extends ShadowComponent {
 
     <div class="header">
   <y-avatar src="${this.avatar || ""}" alt="Avatar image"></y-avatar>
-  <div id="username"><a href="/@${encodeURIComponent(this.username || "")}" data-user="${this.escape(this.username)}">@${this.escape(this.username)}</a> ${this.vibe ? `<span title="vibe">${this.vibe}</span>` : ``}</div>
+  <div id="username"><a href="/@${encodeURIComponent(this.username || "")}" data-user="${this.escape(this.username)}">@${this.escape(this.username)}</a> ${this.vibe ? `<span title="vibe">${this.vibe}</span>` : ``} ${this.location ? `<span title="location">${this.escape(this.location)}</span>` : ``}</div>
         <div id="timestamp">–</div>
       </div>
 
@@ -198,7 +201,7 @@ export default class Post extends ShadowComponent {
             this.canInteract
               ? `
           <div class="comment-form">
-            <y-field id="cfield" placeholder="Napisz komentarz…"></y-field>
+            <y-field id="cfield" placeholder="Write a comment…"></y-field>
             <y-button id="csend" variant="outline" icon-only aria-label="Send">
               <y-icon icon="arrow-upward" slot="icon"></y-icon>
             </y-button>

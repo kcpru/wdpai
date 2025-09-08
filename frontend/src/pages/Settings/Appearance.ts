@@ -22,7 +22,7 @@ export default class SettingsAppearancePage extends ShadowComponent {
         </div>
 
         <div class="field">
-          <label for="accent">Accent color</label>
+          <label for="accent">Accent</label>
           <y-select id="accent" block>
             <option value="blue">Blue</option>
             <option value="violet">Violet</option>
@@ -119,16 +119,32 @@ export default class SettingsAppearancePage extends ShadowComponent {
           highContrast: false,
         };
       const parsed = JSON.parse(raw);
+      const allowedAccents = [
+        "blue",
+        "violet",
+        "green",
+        "teal",
+        "orange",
+        "rose",
+      ];
+      // migrate duo to nearest single
+      const duoMap: Record<string, (typeof allowedAccents)[number]> = {
+        "meadow-duo": "green",
+        "earth-duo": "orange",
+        "royal-duo": "violet",
+      };
+      if (parsed?.accent && duoMap[parsed.accent]) {
+        parsed.accent = duoMap[parsed.accent];
+        try {
+          localStorage.setItem("appearance:settings", JSON.stringify(parsed));
+        } catch {}
+      }
       return {
         theme:
           parsed.theme === "light" || parsed.theme === "dark"
             ? parsed.theme
             : "system",
-        accent: ["blue", "violet", "green", "teal", "orange", "rose"].includes(
-          parsed.accent
-        )
-          ? parsed.accent
-          : "blue",
+        accent: allowedAccents.includes(parsed.accent) ? parsed.accent : "blue",
         textSize: ["sm", "md", "lg", "xl"].includes(parsed.textSize)
           ? parsed.textSize
           : "md",
@@ -171,12 +187,6 @@ export default class SettingsAppearancePage extends ShadowComponent {
     root.classList.remove(
       "force-light",
       "force-dark",
-      "accent-blue",
-      "accent-violet",
-      "accent-green",
-      "accent-teal",
-      "accent-orange",
-      "accent-rose",
       "compact",
       "reduced-motion",
       "text-scale-sm",
@@ -187,6 +197,10 @@ export default class SettingsAppearancePage extends ShadowComponent {
       "radius-rounded",
       "high-contrast"
     );
+    // remove any previous accent-* class
+    Array.from(root.classList)
+      .filter((c) => c.startsWith("accent-"))
+      .forEach((c) => root.classList.remove(c));
 
     if (s.theme === "light") root.classList.add("force-light");
     else if (s.theme === "dark") root.classList.add("force-dark");

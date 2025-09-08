@@ -20,6 +20,9 @@
   --input: 214.3 31.8% 91.4%;
   --ring: 221.2 83.2% 53.3%;
 
+  /* primary button bg (overridable by themes) */
+  --button-primary: var(--primary);
+
   /* fonts */
   --font-sans: "IBM Plex Sans Variable", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
@@ -27,13 +30,9 @@
   /* font weights */
   --font-light: 300;
   --font-medium: 500;
-  --font-semibold: 600;
-  --font-bold: 700;
-
   /* transitions */
   --transition: 0.2s ease;
 
-  /* shadows */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 5%);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 10%);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 10%), 0 2px 4px -1px rgb(0 0 0 / 6%);
@@ -49,7 +48,6 @@
   /* breakpoints */
   --2xs: 280px;
   --xs: 320px;
-  --sm: 640px;
   --md: 768px;
   --lg: 1024px;
   --xl: 1280px;
@@ -57,7 +55,6 @@
 
   /* font sizes */
   --text-2xs: 0.625rem;
-  --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-lg: 1.125rem;
@@ -91,6 +88,8 @@
   --backdrop-blur: 10px;
 }
 
+/* Duo themes removed */
+
 /* Auto dark mode (system preference) */
 @media (prefers-color-scheme: dark) {
   :root {
@@ -123,6 +122,7 @@
     --muted: 222 45% 8.5%;
     --accent: 222 45% 8.5%;
   }
+  /* Duo variants removed */
   :root.accent-violet {
     /* tilt darkest bases to violet */
     --background: 262 35% 5.2%;
@@ -310,6 +310,8 @@
     --muted: 215 45% 96.5%;
     --accent: 215 45% 96.5%;
   }
+  /* Duo force-dark variants removed */
+  /* Duo light variants removed */
   :root.accent-violet {
     --primary: 262 83% 58%;
     --ring: 262 83% 58%;
@@ -394,6 +396,7 @@
   --muted: 215 45% 96.5%;
   --accent: 215 45% 96.5%;
 }
+/* Duo force-light variants removed */
 :root.force-light.accent-violet {
   --foreground: 258 60% 6%;
   --card-foreground: 258 60% 6%;

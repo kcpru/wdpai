@@ -193,7 +193,7 @@ export default class MainLayout extends ShadowComponent {
           display: flex;
           justify-content: center;
           align-items: center;
-          color: hsl(var(--foreground));
+          color: hsl(var(--primary));
         }
         #actions {
           display: flex;
@@ -201,6 +201,7 @@ export default class MainLayout extends ShadowComponent {
           align-items: flex-start;
           gap: var(--spacing-xs);
         }
+        
         aside {
           width: 20rem;
           color: white;

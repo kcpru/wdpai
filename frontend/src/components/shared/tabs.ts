@@ -27,6 +27,8 @@ export default class Tabs extends ShadowComponent {
           border-bottom: 2px solid transparent;
           color: var(--tabs-color);
           text-decoration: none;
+          flex: 1;
+          justify-content: center;
         }
         ::slotted(y-nav-link[active]) {
           color: var(--tabs-active-color);

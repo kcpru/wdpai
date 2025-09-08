@@ -23,11 +23,14 @@ CREATE TABLE IF NOT EXISTS posts (
   content     TEXT    NOT NULL,
   images      TEXT[]  NOT NULL DEFAULT '{}',
   vibe        TEXT,
+  location    TEXT,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Add vibe column to posts if missing (for existing databases)
 ALTER TABLE posts ADD COLUMN IF NOT EXISTS vibe TEXT;
+-- Add location column to posts if missing (for existing databases)
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS location TEXT;
 
 -- Users can like posts (one like per user per post)
 CREATE TABLE IF NOT EXISTS post_likes (

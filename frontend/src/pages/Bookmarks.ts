@@ -61,6 +61,7 @@ export default class BookmarksPage extends ShadowComponent {
                 images='${JSON.stringify(p.images || [])}'
                 username="${this.escape(p.username || "")}" 
                 vibe="${p.vibe || ""}"
+                location="${p.location || ""}"
                 avatar="${p.avatar || ""}"
                 ${
                   (p.user_id && this.meId && p.user_id === this.meId) ||
