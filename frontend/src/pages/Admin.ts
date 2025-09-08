@@ -33,31 +33,33 @@ export default class AdminPage extends ShadowComponent {
     this.html`
       <style>
   :host { display: block; }
-  .container { width: var(--sm); max-width: 100%; display: grid; gap: var(--spacing-lg); }
+  .container { max-width: 100%; display: grid; gap: var(--spacing-lg); }
   .lede { color: hsl(var(--muted-foreground)); margin: 0; }
   .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--spacing-md); }
   y-avatar { --avatar-size: 1.75rem; }
   .card-top { display: flex; align-items: center; gap: var(--spacing-sm); min-width: 0; }
   .name { font-weight: var(--font-medium); overflow-wrap: anywhere; word-break: break-word; }
+  .name a { color: inherit; text-decoration: none; }
+  .name a:hover { text-decoration: underline; }
   .meta { display: flex; align-items: center; gap: var(--spacing-sm); flex-wrap: wrap; }
   .created { font-size: var(--text-xs); color: hsl(var(--muted-foreground)); flex: 1 1 auto; min-width: 0; }
   .actions { display: inline-flex; gap: var(--spacing-xs); flex: 0 0 auto; }
       </style>
+
       <div class="container">
-        <y-card>
           <div slot="header">
             <y-heading level="1">Admin · Users</y-heading>
             <p class="lede">Manage roles and remove accounts.</p>
           </div>
 
-          <div slot="body" class="users-grid">
+          <div class="users-grid">
             ${this.users
               .map(
                 (u) => `
               <y-card class="user-card">
                 <div slot="header" class="card-top">
                   ${u.avatar ? `<y-avatar src="${u.avatar}" alt="${u.username}"></y-avatar>` : `<y-avatar></y-avatar>`}
-                  <div class="name">@${u.username} <span style="opacity:.6">#${u.id}</span></div>
+                  <div class="name"><a href="/@${u.username}" class="user-link">@${u.username}</a> <span style="opacity:.6">#${u.id}</span></div>
                 </div>
                 <div slot="body">
                   <y-select variant="outline" data-id="${u.id}" class="role">
@@ -78,7 +80,6 @@ export default class AdminPage extends ShadowComponent {
               )
               .join("")}
           </div>
-        </y-card>
       </div>
       <y-confirm id="confirm"></y-confirm>
     `;
@@ -132,6 +133,18 @@ export default class AdminPage extends ShadowComponent {
         }
       })
     );
+    // Wire profile link navigation
+    this.qsa<HTMLAnchorElement>("a.user-link").forEach((a) => {
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        const href = a.getAttribute("href") || "/";
+        history.pushState({}, "", href);
+        // lazy import render
+        import("../router/index").then(({ render }) =>
+          render(location.pathname)
+        );
+      });
+    });
   }
 
   private fmtDate(s?: string | null): string {

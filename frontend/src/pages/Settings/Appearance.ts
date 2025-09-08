@@ -9,16 +9,7 @@ export default class SettingsAppearancePage extends ShadowComponent {
         :host { display: block; }
         form { display: flex; flex-direction: column; gap: .75rem; }
         .field label { font-weight: var(--font-medium); margin-bottom: var(--spacing-xs); display:block; }
-        .checkbox {
-          display: flex;
-          gap: .5rem;
-          align-items: center;
-          background: hsl(var(--input));
-          padding: var(--spacing-sm);
-          border-radius: var(--radius-md);
-          border: 1px solid hsl(var(--border));
-        }
-        .checkbox input { margin: 0; }
+  .checkbox { display:flex; align-items:center; gap:.5rem; }
       </style>
       <form id="appearance-settings-form" novalidate>
         <div class="field">
@@ -40,13 +31,11 @@ export default class SettingsAppearancePage extends ShadowComponent {
         </div>
 
         <label class="checkbox">
-          <input id="compact" type="checkbox" />
-          <span>Compact density</span>
+          <y-checkbox id="compact">Compact density</y-checkbox>
         </label>
 
         <label class="checkbox">
-          <input id="reduced" type="checkbox" />
-          <span>Reduced motion</span>
+          <y-checkbox id="reduced">Reduced motion</y-checkbox>
         </label>
 
         <y-button type="submit">Save changes</y-button>
@@ -62,12 +51,8 @@ export default class SettingsAppearancePage extends ShadowComponent {
       e.preventDefault();
       const theme = (this.qs("#theme") as any).value as string;
       const accent = (this.qs("#accent") as any).value as string;
-      const compact = (
-        this.qs<HTMLInputElement>("#compact") as HTMLInputElement
-      ).checked;
-      const reduced = (
-        this.qs<HTMLInputElement>("#reduced") as HTMLInputElement
-      ).checked;
+      const compact = (this.qs("#compact") as any).checked === true;
+      const reduced = (this.qs("#reduced") as any).checked === true;
 
       const settings = {
         theme,
@@ -127,8 +112,8 @@ export default class SettingsAppearancePage extends ShadowComponent {
   private setUI(s: AppearanceSettings) {
     (this.qs("#theme") as any).value = s.theme;
     (this.qs("#accent") as any).value = s.accent;
-    this.qs<HTMLInputElement>("#compact").checked = s.compact;
-    this.qs<HTMLInputElement>("#reduced").checked = s.reduced;
+    (this.qs("#compact") as any).checked = s.compact;
+    (this.qs("#reduced") as any).checked = s.reduced;
   }
 
   private applySettings(s: AppearanceSettings) {

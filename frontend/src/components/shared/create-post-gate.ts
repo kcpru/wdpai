@@ -51,7 +51,7 @@ export default class CreatePostGate extends ShadowComponent {
 
     this.html`
       <style>
-        :host { display: block; }
+        :host { display: block; width: 100%; }
         .prompt {
           box-sizing: border-box;
           display: flex;
@@ -68,6 +68,7 @@ export default class CreatePostGate extends ShadowComponent {
         .prompt p { color: hsl(var(--muted-foreground)); margin: 0; }
         .prompt .actions { display: flex; gap: var(--spacing-sm); }
       </style>
+      
       <div class="prompt">
         <p>To publish a post, please sign in or register.</p>
         <div class="actions">

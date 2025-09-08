@@ -1,5 +1,6 @@
 import { ShadowComponent } from "../utils/shadow-component";
 import { WC } from "../utils/wc";
+import { toaster } from "../utils/toaster";
 
 @WC("user-profile-page")
 export default class UserProfile extends ShadowComponent {
@@ -103,13 +104,18 @@ export default class UserProfile extends ShadowComponent {
     return `
       <y-card>
         <div slot="body" style="display:flex; gap: var(--spacing-md); align-items:center;">
-          <y-avatar src="${this.profile.avatar || ""}" alt="${this.profile.username}"></y-avatar>
+          <y-avatar style="--avatar-size: 4rem;" src="${this.profile.avatar || ""}" alt="${this.profile.username}"></y-avatar>
           <div>
             <y-heading level="1">@${this.escape(this.profile.username)}</y-heading>
             <div style="color:hsl(var(--muted-foreground));">Joined ${this.fmtDate(this.profile.created_at)}</div>
           </div>
-          <div style="margin-left:auto;">
-            ${this.isSelfOrMod() ? `<y-button variant="outline" disabled>Following</y-button>` : ``}
+              <div style="margin-left:auto; display:flex; align-items:center; gap:.5rem; flex-wrap: wrap; justify-content:flex-end;">
+            ${
+              this.me.id && this.profile?.id && this.profile.id !== this.me.id
+                ? `<y-button id="follow-btn" variant="outline">${this.profile.following ? "Unfollow" : "Follow"}</y-button>`
+                : ``
+            }
+               ${typeof this.profile.followers_count === "number" ? `<span style="color:hsl(var(--muted-foreground)); font-size: var(--text-sm);"><strong>${this.profile.followers_count}</strong> followers</span>` : ``}
           </div>
         </div>
       </y-card>
@@ -129,7 +135,9 @@ export default class UserProfile extends ShadowComponent {
             avatar="${p.avatar || ""}"
             created_at="${p.created_at || ""}"
             likes="${p.likes_count ?? 0}"
+            comments="${p.comments_count ?? 0}"
             bookmarks="${p.bookmarks_count ?? 0}"
+            ${this.me.id ? "can_interact" : ""}
             ${p.liked ? "liked" : ""}
             ${p.bookmarked ? "bookmarked" : ""}
             ${
@@ -150,7 +158,7 @@ export default class UserProfile extends ShadowComponent {
       <style>
         :host { display:block; }
         .wrap { width: 100%; display:flex; flex-direction:column; align-items:center; }
-        .inner { width: var(--sm); max-width: 100%; display:grid; gap: var(--spacing-lg); }
+        .inner { max-width: 100%; display:grid; gap: var(--spacing-lg); }
       </style>
       <div class="wrap">
         <div class="inner">
@@ -159,5 +167,66 @@ export default class UserProfile extends ShadowComponent {
         </div>
       </div>
     `;
+
+    const btn = this.root.querySelector("#follow-btn") as HTMLElement | null;
+    if (btn) {
+      btn.addEventListener("click", async () => {
+        if (!this.profile) return;
+        // Confirm when unfollowing
+        let want = !this.profile.following;
+        if (!want) {
+          // we are about to unfollow -> confirm using global confirm dialog if available
+          const confirmEl = document.querySelector("y-confirm") as any;
+          let ok = true;
+          if (confirmEl?.open) {
+            ok = await confirmEl.open({
+              title: "Unfollow user",
+              description: `Stop following @${this.profile.username}?`,
+              confirmText: "Unfollow",
+              cancelText: "Cancel",
+            });
+          } else {
+            ok = window.confirm(`Stop following @${this.profile.username}?`);
+          }
+          if (!ok) return;
+        }
+        // optimistic
+        this.profile.following = want;
+        (btn as any).textContent = want ? "Unfollow" : "Follow";
+        // update followers count optimistic
+        if (typeof this.profile.followers_count === "number") {
+          this.profile.followers_count += want ? 1 : -1;
+          this.render();
+        }
+        try {
+          await fetch(
+            `${import.meta.env.VITE_API}/users/${encodeURIComponent(this.profile.username)}/follow`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ follow: want }),
+            }
+          );
+          if (want) {
+            toaster.create({
+              type: "success",
+              title: "Following",
+              description: `You are now following @${this.profile.username}.`,
+            });
+          }
+        } catch {
+          // rollback on failure
+          this.profile.following = !want;
+          (btn as any).textContent = this.profile.following
+            ? "Unfollow"
+            : "Follow";
+          if (typeof this.profile.followers_count === "number") {
+            this.profile.followers_count += want ? -1 : 1;
+            this.render();
+          }
+        }
+      });
+    }
   }
 }

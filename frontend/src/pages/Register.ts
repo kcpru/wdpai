@@ -8,7 +8,7 @@ export default class RegisterPage extends ShadowComponent {
   connectedCallback() {
     this.html`
       <style>
-        :host { display: block; max-width: 400px; margin: 2rem auto; padding: 0 1rem; }
+        :host { display: block; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
         form { display: flex; flex-direction: column; gap: .75rem; }
         input { padding: .5rem; font-size: 1rem; }
         y-nav-link { margin-right: 1rem; }
@@ -55,7 +55,7 @@ export default class RegisterPage extends ShadowComponent {
             <span id="file-name" class="file-name" aria-live="polite"></span>
           </div>
 
-          <y-button aria-label="Create account" id="submit" type="submit">
+          <y-button aria-label="Create account" id="submit" type="submit" disabled>
             Create account
             <y-icon icon="person-add" slot="icon"></y-icon>
           </y-button>
@@ -79,6 +79,15 @@ export default class RegisterPage extends ShadowComponent {
     this.on("#confirm", "input", touch);
     // username/password fields only for backend API
     this.on("#username", "input", touch);
+
+    // toggle button disabled on any input change
+    const update = () => this.updateDisabled();
+    this.on("#username", "input", update);
+    this.on("#password", "input", update);
+    this.on("#confirm", "input", update);
+    this.on("#avatar", "input", update);
+    // initial state
+    this.updateDisabled();
 
     this.syncConfirmRegex();
 
@@ -137,12 +146,16 @@ export default class RegisterPage extends ShadowComponent {
 
     if (invalid || password !== confirm) {
       (this.qs("#form-error") as HTMLElement).textContent =
-        "Uzupełnij poprawnie wszystkie pola.";
+        "Please fix the errors above and try again.";
       this.qs("#form-error").removeAttribute("hidden");
       return;
     }
 
     try {
+      // guard again; do nothing if invalid
+      if (invalid || password !== confirm) {
+        return;
+      }
       const res = await fetch(`${import.meta.env.VITE_API}/register`, {
         method: "POST",
         credentials: "include",
@@ -186,5 +199,18 @@ export default class RegisterPage extends ShadowComponent {
       ".group"
     ) as HTMLElement | null;
     return group?.classList.contains("valid") ?? false;
+  }
+
+  private updateDisabled() {
+    // confirm regex mirrors password; validate first
+    this.syncConfirmRegex();
+    const ok =
+      this.isFieldValid("#username") &&
+      this.isFieldValid("#password") &&
+      this.isFieldValid("#confirm");
+    const btn = this.qs<HTMLElement>("#submit");
+    if (!btn) return;
+    if (ok) btn.removeAttribute("disabled");
+    else btn.setAttribute("disabled", "");
   }
 }

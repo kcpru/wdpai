@@ -9,7 +9,7 @@ export default class NotFound extends ShadowComponent {
       <style>
         :host { display:block; }
         .wrap { width:100%; display:flex; align-items:center; justify-content:center; }
-        .card { width: var(--sm); max-width: 100%; background: hsl(var(--card)); color: hsl(var(--card-foreground)); border: 1px solid hsl(var(--border)); border-radius: var(--radius-xl); padding: var(--spacing-xl); text-align: center; box-shadow: var(--shadow-md); }
+        .card { max-width: 100%; background: hsl(var(--card)); color: hsl(var(--card-foreground)); border: 1px solid hsl(var(--border)); border-radius: var(--radius-xl); padding: var(--spacing-xl); text-align: center; box-shadow: var(--shadow-md); }
         .mark { font-size: clamp(4rem, 12vw, 8rem); line-height: 1; font-weight: var(--font-black, 900); letter-spacing: -0.04em; display:inline-block; }
         .y { color: hsl(var(--primary)); filter: drop-shadow(0 6px 24px hsl(var(--primary) / .25)); }
         .oops { margin: .5rem 0 0; font-size: var(--text-lg); color: hsl(var(--muted-foreground)); }

@@ -19,6 +19,24 @@ export async function removeLikeNotification({ recipientId, actorId, postId }) {
   );
 }
 
+export async function createFollowNotification({ recipientId, actorId }) {
+  if (!recipientId || !actorId || recipientId === actorId) return;
+  await pool.query(
+    `INSERT INTO notifications (user_id, actor_id, type)
+     VALUES ($1, $2, 'follow')
+     ON CONFLICT DO NOTHING`,
+    [recipientId, actorId]
+  );
+}
+
+export async function removeFollowNotification({ recipientId, actorId }) {
+  if (!recipientId || !actorId) return;
+  await pool.query(
+    `DELETE FROM notifications WHERE user_id=$1 AND actor_id=$2 AND type='follow'`,
+    [recipientId, actorId]
+  );
+}
+
 export async function listNotifications(userId, limit = 50, offset = 0) {
   const { rows } = await pool.query(
     `SELECT n.id, n.type, n.post_id, n.created_at, n.read,

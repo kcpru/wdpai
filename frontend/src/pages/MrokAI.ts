@@ -39,7 +39,7 @@ export default class MrokAi extends ShadowComponent {
 					animation: noise 10s infinite linear;
 					z-index: 0;
 					animation: background-move 1s infinite linear;
-          min-width: 40rem;
+          /* responsive width handled by outer layout; no fixed min-width */
 				}
 				
 				@keyframes background-move {

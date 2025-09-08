@@ -9,12 +9,26 @@ import {
   listBookmarkedBy,
   searchPosts,
   listPostsByUser,
+  listComments,
+  createComment,
 } from "../models/posts.js";
 import {
   createLikeNotification,
   removeLikeNotification,
 } from "../models/notifications.js";
-import { searchUsers, getUserByUsername } from "../models/users.js";
+import {
+  searchUsers,
+  getUserByUsername,
+  listFeedForUser,
+  toggleFollow,
+  isFollowing,
+  countFollowers,
+  countFollowing,
+} from "../models/users.js";
+import {
+  createFollowNotification,
+  removeFollowNotification,
+} from "../models/notifications.js";
 
 export async function postsRouter(req, res, url) {
   if (url.pathname === "/posts" && req.method === "GET") {
@@ -23,6 +37,57 @@ export async function postsRouter(req, res, url) {
     const user = await currentUser(req).catch(() => null);
     const posts = await listPosts(limit, offset, user?.id ?? null);
     json(res, 200, { posts });
+    return true;
+  }
+
+  // GET /feed - posts from users I follow
+  if (url.pathname === "/feed" && req.method === "GET") {
+    const user = await currentUser(req);
+    if (!user) {
+      json(res, 401, { error: "unauthorized" });
+      return true;
+    }
+    const limit = Number(url.searchParams.get("limit") || 50);
+    const offset = Number(url.searchParams.get("offset") || 0);
+    const posts = await listFeedForUser(user.id, limit, offset);
+    json(res, 200, { posts });
+    return true;
+  }
+
+  // GET /posts/:id/comments
+  if (req.method === "GET" && /^\/posts\/\d+\/comments$/.test(url.pathname)) {
+    const id = Number(url.pathname.split("/")[2] || 0);
+    if (!Number.isInteger(id) || id <= 0) {
+      json(res, 400, { error: "invalid_id" });
+      return true;
+    }
+    const limit = Number(url.searchParams.get("limit") || 50);
+    const offset = Number(url.searchParams.get("offset") || 0);
+    const comments = await listComments(id, limit, offset);
+    json(res, 200, { comments });
+    return true;
+  }
+
+  // POST /posts/:id/comments { content }
+  if (req.method === "POST" && /^\/posts\/\d+\/comments$/.test(url.pathname)) {
+    const user = await currentUser(req);
+    if (!user) {
+      json(res, 401, { error: "unauthorized" });
+      return true;
+    }
+    const id = Number(url.pathname.split("/")[2] || 0);
+    if (!Number.isInteger(id) || id <= 0) {
+      json(res, 400, { error: "invalid_id" });
+      return true;
+    }
+    const body = await readBody(req).catch(() => null);
+    const content = String(body?.content || "").trim();
+    if (!content) {
+      json(res, 400, { error: "empty_content" });
+      return true;
+    }
+    const comment = await createComment(id, user.id, content);
+    json(res, 201, { comment });
     return true;
   }
 
@@ -169,13 +234,54 @@ export async function postsRouter(req, res, url) {
       json(res, 200, { posts });
       return true;
     }
+    const viewer = await currentUser(req).catch(() => null);
+    const following = viewer?.id
+      ? await isFollowing(viewer.id, user.id)
+      : false;
+    const [followers_count, following_count] = await Promise.all([
+      countFollowers(user.id),
+      countFollowing(user.id),
+    ]);
     json(res, 200, {
       id: user.id,
       username: user.username,
       avatar: user.avatar || null,
       role: user.role,
       created_at: user.created_at,
+      following,
+      followers_count,
+      following_count,
     });
+    return true;
+  }
+
+  // POST /users/:username/follow { follow: boolean }
+  if (req.method === "POST" && /^\/users\/.+\/follow$/.test(url.pathname)) {
+    const me = await currentUser(req);
+    if (!me) {
+      json(res, 401, { error: "unauthorized" });
+      return true;
+    }
+    const username = decodeURIComponent(url.pathname.split("/")[2] || "");
+    const target = await getUserByUsername(username);
+    if (!target) {
+      json(res, 404, { error: "not_found" });
+      return true;
+    }
+    const body = await readBody(req).catch(() => ({}));
+    const want = Boolean(body?.follow);
+    await toggleFollow(me.id, target.id, want);
+    if (want)
+      await createFollowNotification({
+        recipientId: target.id,
+        actorId: me.id,
+      });
+    else
+      await removeFollowNotification({
+        recipientId: target.id,
+        actorId: me.id,
+      });
+    json(res, 200, { following: want });
     return true;
   }
 

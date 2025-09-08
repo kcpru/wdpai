@@ -22,7 +22,7 @@ export default class SearchPage extends ShadowComponent {
           box-sizing: border-box;
         }
         .box { width: 100%; display: flex; flex-direction: column; align-items: center; }
-        .inner { width: var(--sm); max-width: 100%; }
+        .inner { max-width: 100%; }
         ul.suggestions {
           list-style: none;
           margin: 0.25rem 0 0;
@@ -178,7 +178,9 @@ export default class SearchPage extends ShadowComponent {
                   avatar="${(p as any).avatar || ""}"
                   created_at="${p.created_at || ""}"
                   likes="${p.likes_count ?? 0}"
+                  comments="${p.comments_count ?? 0}"
                   bookmarks="${p.bookmarks_count ?? 0}"
+                  ${this.meId ? "can_interact" : ""}
                   ${p.liked ? "liked" : ""}
                   ${p.bookmarked ? "bookmarked" : ""}
                   ${

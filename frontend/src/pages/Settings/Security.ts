@@ -16,8 +16,7 @@ export default class SettingsSecurityPage extends ShadowComponent {
         </y-field>
 
         <label style="display:flex; align-items:center; gap:.5rem;">
-          <input type="checkbox" id="two-factor" />
-          <span>Enable two-factor authentication</span>
+          <y-checkbox id="two-factor">Enable two-factor authentication</y-checkbox>
         </label>
 
         <y-button type="submit">Save changes</y-button>

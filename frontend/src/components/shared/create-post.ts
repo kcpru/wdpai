@@ -40,7 +40,7 @@ export default class CreatePost extends ShadowComponent {
           color: hsl(var(--card-foreground));
           border-radius: var(--radius-lg);
           border: 1px solid hsl(var(--border));
-          width: var(--sm); /* fixed content width */
+          width: 100%;
         }
         .prompt {
           display: flex;
@@ -398,6 +398,14 @@ export default class CreatePost extends ShadowComponent {
           });
           if (!resp.ok) throw new Error("failed");
           const data = await resp.json();
+          // fetch current user to enrich the post for immediate rendering
+          let me: any = null;
+          try {
+            const meRes = await fetch(import.meta.env.VITE_API + "/me", {
+              credentials: "include",
+            });
+            if (meRes.ok) me = await meRes.json();
+          } catch {}
           // clear input
           contentEl.innerText = "";
           images.forEach((i) => URL.revokeObjectURL(i.url));
@@ -406,7 +414,12 @@ export default class CreatePost extends ShadowComponent {
           // emit event for parent lists
           this.dispatchEvent(
             new CustomEvent("post-created", {
-              detail: data.post,
+              detail: {
+                ...data.post,
+                user_id: me?.id ?? data.post?.user_id,
+                username: me?.username ?? "",
+                avatar: me?.avatar ?? "",
+              },
               bubbles: true,
               composed: true,
             })

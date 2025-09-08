@@ -61,16 +61,34 @@ export default class NotificationsPage extends ShadowComponent {
                 if (n.type === "like") {
                   return `
               <y-card class="item">
-                <div class="row">
-                  <y-avatar src="${n.actor_avatar || ""}"></y-avatar>
-                  <div class="meta">
-                    <div class="line">
-                      <strong>@${n.actor_username}</strong> liked your post
+                <div slot="body">
+                  <div class="row">
+                    <y-avatar src="${n.actor_avatar || ""}"></y-avatar>
+                    <div class="meta">
+                      <div class="line">
+                        <strong><a class="user-link" href="/@${encodeURIComponent(n.actor_username || "")}">@${n.actor_username}</a></strong> liked your post
+                      </div>
+                      <div class="time">${this.fmtTime(n.created_at)}</div>
                     </div>
-                    <div class="time">${this.fmtTime(n.created_at)}</div>
+                  </div>
+                  ${n.post_content ? `<div class="post">“${n.post_content.slice(0, 140)}${n.post_content.length > 140 ? "…" : ""}”</div>` : ""}
+                </div>
+              </y-card>`;
+                }
+                if (n.type === "follow") {
+                  return `
+              <y-card class="item">
+                <div slot="body">
+                  <div class="row">
+                    <y-avatar src="${n.actor_avatar || ""}"></y-avatar>
+                    <div class="meta">
+                      <div class="line">
+                        <strong><a class="user-link" href="/@${encodeURIComponent(n.actor_username || "")}">@${n.actor_username}</a></strong> started following you
+                      </div>
+                      <div class="time">${this.fmtTime(n.created_at)}</div>
+                    </div>
                   </div>
                 </div>
-                ${n.post_content ? `<div class="post">“${n.post_content.slice(0, 140)}${n.post_content.length > 140 ? "…" : ""}”</div>` : ""}
               </y-card>`;
                 }
                 return "";
@@ -90,7 +108,9 @@ export default class NotificationsPage extends ShadowComponent {
         y-avatar { width: 40px; height: 40px; border-radius: 999px; overflow: hidden; }
         .meta { display: flex; flex-direction: column; gap: 2px; }
         .time { color: hsl(var(--muted-foreground)); font-size: var(--text-sm); }
-        .post { color: hsl(var(--muted-foreground)); font-style: italic; }
+  .post { color: hsl(var(--muted-foreground)); font-style: italic; }
+  a { color: inherit; text-decoration: none; }
+  a:hover { text-decoration: underline; }
       </style>
 
       <div class="container">
@@ -102,5 +122,14 @@ export default class NotificationsPage extends ShadowComponent {
     `;
   }
 
-  private attach() {}
+  private attach() {
+    this.qsa<HTMLAnchorElement>("a.user-link").forEach((a) => {
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        const href = a.getAttribute("href") || "/";
+        history.pushState({}, "", href);
+        render(location.pathname);
+      });
+    });
+  }
 }

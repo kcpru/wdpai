@@ -16,6 +16,7 @@ export async function listPosts(limit = 50, offset = 0, viewerId = null) {
       u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,
+            COALESCE(cm.cnt, 0) AS comments_count,
             (CASE WHEN $3::int IS NULL THEN false ELSE EXISTS (
                SELECT 1 FROM post_likes x WHERE x.post_id = p.id AND x.user_id = $3
              ) END) AS liked,
@@ -30,6 +31,9 @@ export async function listPosts(limit = 50, offset = 0, viewerId = null) {
        LEFT JOIN (
          SELECT post_id, COUNT(*)::int AS cnt FROM bookmarks GROUP BY post_id
        ) bm ON bm.post_id = p.id
+       LEFT JOIN (
+         SELECT post_id, COUNT(*)::int AS cnt FROM comments GROUP BY post_id
+       ) cm ON cm.post_id = p.id
       ORDER BY p.created_at DESC
       LIMIT $1 OFFSET $2`,
     [limit, offset, viewerId]
@@ -48,6 +52,7 @@ export async function listPostsByUser(
       u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,
+            COALESCE(cm.cnt, 0) AS comments_count,
             (CASE WHEN $4::int IS NULL THEN false ELSE EXISTS (
                SELECT 1 FROM post_likes x WHERE x.post_id = p.id AND x.user_id = $4
              ) END) AS liked,
@@ -62,6 +67,9 @@ export async function listPostsByUser(
        LEFT JOIN (
          SELECT post_id, COUNT(*)::int AS cnt FROM bookmarks GROUP BY post_id
        ) bm ON bm.post_id = p.id
+       LEFT JOIN (
+         SELECT post_id, COUNT(*)::int AS cnt FROM comments GROUP BY post_id
+       ) cm ON cm.post_id = p.id
       WHERE p.user_id = $1
       ORDER BY p.created_at DESC
       LIMIT $2 OFFSET $3`,
@@ -135,6 +143,7 @@ export async function listBookmarkedBy(userId, limit = 50, offset = 0) {
       u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,
+            COALESCE(cm.cnt, 0) AS comments_count,
             true AS bookmarked,
             EXISTS (SELECT 1 FROM post_likes x WHERE x.post_id = p.id AND x.user_id = $1) AS liked
        FROM bookmarks b
@@ -146,6 +155,9 @@ export async function listBookmarkedBy(userId, limit = 50, offset = 0) {
        LEFT JOIN (
          SELECT post_id, COUNT(*)::int AS cnt FROM bookmarks GROUP BY post_id
        ) bm ON bm.post_id = p.id
+       LEFT JOIN (
+         SELECT post_id, COUNT(*)::int AS cnt FROM comments GROUP BY post_id
+       ) cm ON cm.post_id = p.id
       WHERE b.user_id = $1
       ORDER BY b.created_at DESC
       LIMIT $2 OFFSET $3`,
@@ -161,6 +173,7 @@ export async function searchPosts(q, limit = 20, offset = 0, viewerId = null) {
             u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,
+            COALESCE(cm.cnt, 0) AS comments_count,
             (CASE WHEN $4::int IS NULL THEN false ELSE EXISTS (
                SELECT 1 FROM post_likes x WHERE x.post_id = p.id AND x.user_id = $4
              ) END) AS liked,
@@ -175,10 +188,44 @@ export async function searchPosts(q, limit = 20, offset = 0, viewerId = null) {
        LEFT JOIN (
          SELECT post_id, COUNT(*)::int AS cnt FROM bookmarks GROUP BY post_id
        ) bm ON bm.post_id = p.id
+       LEFT JOIN (
+         SELECT post_id, COUNT(*)::int AS cnt FROM comments GROUP BY post_id
+       ) cm ON cm.post_id = p.id
       WHERE p.content ILIKE $1 OR u.username ILIKE $1
       ORDER BY p.created_at DESC
       LIMIT $2 OFFSET $3`,
     [pattern, limit, offset, viewerId]
   );
   return rows;
+}
+
+export async function listComments(postId, limit = 50, offset = 0) {
+  const { rows } = await pool.query(
+    `SELECT c.id, c.post_id, c.content, c.created_at,
+            u.id AS user_id, u.username, u.avatar
+       FROM comments c
+       JOIN users u ON u.id = c.user_id
+      WHERE c.post_id = $1
+      ORDER BY c.created_at ASC
+      LIMIT $2 OFFSET $3`,
+    [postId, limit, offset]
+  );
+  return rows;
+}
+
+export async function createComment(postId, userId, content) {
+  const clean = String(content || "").slice(0, 1000);
+  const { rows } = await pool.query(
+    `INSERT INTO comments (post_id, user_id, content)
+     VALUES ($1,$2,$3)
+     RETURNING id, post_id, content, created_at`,
+    [postId, userId, clean]
+  );
+  const base = rows[0];
+  // enrich with author
+  const { rows: u } = await pool.query(
+    `SELECT id AS user_id, username, avatar FROM users WHERE id=$1`,
+    [userId]
+  );
+  return { ...base, ...u[0] };
 }

@@ -47,33 +47,37 @@ export default class BookmarksPage extends ShadowComponent {
   private render() {
     this.html`
       <style>
-        :host { display: flex; flex-direction: column; gap: var(--spacing-md); }
+        :host { display:block; width:100%; }
+  .container { width: min(100%, var(--sm)); display:flex; flex-direction:column; align-items:center; gap: var(--spacing-md); }
       </style>
-      <h2>Bookmarks</h2>
-      ${this.posts
-        .map(
-          (p: any) => `
-            <y-post
-              pid="${p.id}"
-              text="${this.escape(p.content)}"
-              images='${JSON.stringify(p.images || [])}'
-              username="${this.escape(p.username || "")}"
-              avatar="${p.avatar || ""}"
-              ${
-                (p.user_id && this.meId && p.user_id === this.meId) ||
-                this.meRole === "admin" ||
-                this.meRole === "moderator"
-                  ? "author"
-                  : ""
-              }
-              likes="${p.likes_count ?? 0}"
-              bookmarks="${p.bookmarks_count ?? 0}"
-              ${p.liked ? "liked" : ""}
-              ${p.bookmarked ? "bookmarked" : ""}
-              ${p.user_id && p.meId && p.user_id === p.meId ? "author" : ""}
-            ></y-post>`
-        )
-        .join("")}
+      <div class="container">
+        <h2>Bookmarks</h2>
+        ${this.posts
+          .map(
+            (p: any) => `
+              <y-post
+                pid="${p.id}"
+                text="${this.escape(p.content)}"
+                images='${JSON.stringify(p.images || [])}'
+                username="${this.escape(p.username || "")}" 
+                avatar="${p.avatar || ""}"
+                ${
+                  (p.user_id && this.meId && p.user_id === this.meId) ||
+                  this.meRole === "admin" ||
+                  this.meRole === "moderator"
+                    ? "author"
+                    : ""
+                }
+                likes="${p.likes_count ?? 0}"
+                comments="${p.comments_count ?? 0}"
+                bookmarks="${p.bookmarks_count ?? 0}"
+                ${this.meId ? "can_interact" : ""}
+                ${p.liked ? "liked" : ""}
+                ${p.bookmarked ? "bookmarked" : ""}
+              ></y-post>`
+          )
+          .join("")}
+      </div>
     `;
   }
 }

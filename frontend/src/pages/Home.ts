@@ -55,7 +55,8 @@ export default class Home extends ShadowComponent {
 
   private async loadPosts() {
     try {
-      const resp = await fetch(import.meta.env.VITE_API + "/posts", {
+      const endpoint = this.meId ? "/feed" : "/posts";
+      const resp = await fetch(import.meta.env.VITE_API + endpoint, {
         credentials: "include",
       });
       if (!resp.ok) throw new Error("failed");
@@ -69,40 +70,39 @@ export default class Home extends ShadowComponent {
   private render() {
     this.html`
       <style>
-        :host {
-          display: flex;
-          flex-direction: column;
-          gap: var(--spacing-md);
-          margin-bottom: calc(2 * var(--spacing-xl));
-        }
+        :host { display:block; width:100%; }
+  .container { width: min(100%, var(--sm)); display:flex; flex-direction:column; align-items:center; gap: var(--spacing-md); margin-bottom: calc(2 * var(--spacing-xl)); }
       </style>
+      <div class="container">
+        <y-create-post-gate></y-create-post-gate>
 
-  <y-create-post-gate></y-create-post-gate>
-
-      ${this.posts
-        .map(
-          (p) =>
-            `<y-post
-              pid="${p.id}"
-              text="${this.escape(p.content)}"
-              images='${JSON.stringify(p.images || [])}'
-              username="${this.escape(p.username || "")}"
-              avatar="${(p as any).avatar || ""}"
-              created_at="${p.created_at || ""}"
-              likes="${p.likes_count ?? 0}"
-              bookmarks="${p.bookmarks_count ?? 0}"
-              ${p.liked ? "liked" : ""}
-              ${p.bookmarked ? "bookmarked" : ""}
-              ${
-                (p.user_id && this.meId && p.user_id === this.meId) ||
-                this.meRole === "admin" ||
-                this.meRole === "moderator"
-                  ? "author"
-                  : ""
-              }
-            ></y-post>`
-        )
-        .join("")}
+        ${this.posts
+          .map(
+            (p) =>
+              `<y-post
+                pid="${p.id}"
+                text="${this.escape(p.content)}"
+                images='${JSON.stringify(p.images || [])}'
+                username="${this.escape(p.username || "")}"
+                avatar="${(p as any).avatar || ""}"
+                created_at="${p.created_at || ""}"
+                likes="${p.likes_count ?? 0}"
+                comments="${(p as any).comments_count ?? 0}"
+                bookmarks="${p.bookmarks_count ?? 0}"
+                ${this.meId ? "can_interact" : ""}
+                ${p.liked ? "liked" : ""}
+                ${p.bookmarked ? "bookmarked" : ""}
+                ${
+                  (p.user_id && this.meId && p.user_id === this.meId) ||
+                  this.meRole === "admin" ||
+                  this.meRole === "moderator"
+                    ? "author"
+                    : ""
+                }
+              ></y-post>`
+          )
+          .join("")}
+      </div>
     `;
   }
 
