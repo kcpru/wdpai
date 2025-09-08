@@ -37,7 +37,47 @@ export async function listPosts(limit = 50, offset = 0, viewerId = null) {
   return rows;
 }
 
-export async function deletePost(postId, userId) {
+export async function listPostsByUser(
+  userId,
+  limit = 50,
+  offset = 0,
+  viewerId = null
+) {
+  const { rows } = await pool.query(
+    `SELECT p.id, p.content, p.images, p.created_at,
+      u.id as user_id, u.username, u.avatar,
+            COALESCE(pl.cnt, 0) AS likes_count,
+            COALESCE(bm.cnt, 0) AS bookmarks_count,
+            (CASE WHEN $4::int IS NULL THEN false ELSE EXISTS (
+               SELECT 1 FROM post_likes x WHERE x.post_id = p.id AND x.user_id = $4
+             ) END) AS liked,
+            (CASE WHEN $4::int IS NULL THEN false ELSE EXISTS (
+               SELECT 1 FROM bookmarks b WHERE b.post_id = p.id AND b.user_id = $4
+             ) END) AS bookmarked
+       FROM posts p
+       JOIN users u ON u.id = p.user_id
+       LEFT JOIN (
+         SELECT post_id, COUNT(*)::int AS cnt FROM post_likes GROUP BY post_id
+       ) pl ON pl.post_id = p.id
+       LEFT JOIN (
+         SELECT post_id, COUNT(*)::int AS cnt FROM bookmarks GROUP BY post_id
+       ) bm ON bm.post_id = p.id
+      WHERE p.user_id = $1
+      ORDER BY p.created_at DESC
+      LIMIT $2 OFFSET $3`,
+    [userId, limit, offset, viewerId]
+  );
+  return rows;
+}
+
+export async function deletePost(postId, userId, role = "user") {
+  // Admins and moderators can delete any post; regular users can delete their own
+  if (role === "admin" || role === "moderator") {
+    const { rowCount } = await pool.query(`DELETE FROM posts WHERE id=$1`, [
+      postId,
+    ]);
+    return rowCount > 0;
+  }
   const { rowCount } = await pool.query(
     `DELETE FROM posts WHERE id=$1 AND user_id=$2`,
     [postId, userId]

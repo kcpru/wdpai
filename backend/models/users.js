@@ -12,9 +12,10 @@ export async function createUser(username, hash) {
 }
 
 export async function getUserByUsername(username) {
-  const { rows } = await pool.query(`SELECT * FROM users WHERE username=$1`, [
-    username,
-  ]);
+  const { rows } = await pool.query(
+    `SELECT * FROM users WHERE lower(username)=lower($1)`,
+    [username]
+  );
   return rows[0] || null;
 }
 

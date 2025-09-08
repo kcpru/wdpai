@@ -4,10 +4,24 @@ import { WC } from "../utils/wc";
 @WC("bookmarks-page")
 export default class BookmarksPage extends ShadowComponent {
   private posts: Array<any> = [];
+  private meId: number | null = null;
+  private meRole: string | null = null;
 
   async connectedCallback() {
-    await this.load();
+    await Promise.all([this.loadMe(), this.load()]);
     this.render();
+  }
+
+  private async loadMe() {
+    try {
+      const resp = await fetch(import.meta.env.VITE_API + "/me", {
+        credentials: "include",
+      });
+      if (!resp.ok) return;
+      const me = await resp.json();
+      this.meId = Number(me?.id) || null;
+      this.meRole = (me?.role as string) || null;
+    } catch {}
   }
 
   private async load() {
@@ -24,7 +38,10 @@ export default class BookmarksPage extends ShadowComponent {
   }
 
   private escape(s: string) {
-    return String(s || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    return String(s || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;");
   }
 
   private render() {
@@ -41,8 +58,14 @@ export default class BookmarksPage extends ShadowComponent {
               text="${this.escape(p.content)}"
               images='${JSON.stringify(p.images || [])}'
               username="${this.escape(p.username || "")}"
-              avatar="${p.avatar || "" }"
-              created_at="${p.created_at || ""}"
+              avatar="${p.avatar || ""}"
+              ${
+                (p.user_id && this.meId && p.user_id === this.meId) ||
+                this.meRole === "admin" ||
+                this.meRole === "moderator"
+                  ? "author"
+                  : ""
+              }
               likes="${p.likes_count ?? 0}"
               bookmarks="${p.bookmarks_count ?? 0}"
               ${p.liked ? "liked" : ""}

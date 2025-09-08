@@ -28,10 +28,13 @@ export async function adminRouter(req, res, url) {
   }
 
   // POST /admin/users/:id/role { role }
-  if (req.method === "POST" && /^\/admin\/users\/\d+\/role$/.test(url.pathname)) {
+  if (
+    req.method === "POST" &&
+    /^\/admin\/users\/\d+\/role$/.test(url.pathname)
+  ) {
     const targetId = Number(url.pathname.split("/")[3]);
     const { role } = await readBody(req);
-    if (!role || !["user", "admin"].includes(role)) {
+    if (!role || !["user", "admin", "moderator"].includes(role)) {
       json(res, 400, { error: "bad_role" });
       return true;
     }

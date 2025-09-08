@@ -6,6 +6,7 @@ import { render } from "../../router/index";
 @WC("main-layout")
 export default class MainLayout extends ShadowComponent {
   private loggedIn = false;
+  role: string | null = null;
 
   constructor() {
     super();
@@ -14,17 +15,41 @@ export default class MainLayout extends ShadowComponent {
   async connectedCallback() {
     const cached = getAuthCached();
     this.loggedIn = cached !== null ? cached : await isAuthenticated();
+    await this.loadMe();
     this.render();
     this.addEventListeners();
 
     window.addEventListener("auth-changed", async () => {
       const c = getAuthCached();
       this.loggedIn = c !== null ? c : await isAuthenticated();
+      await this.loadMe();
       this.render();
       this.attachActionHandlers();
     });
 
     this.attachActionHandlers();
+  }
+
+  private async loadMe() {
+    if (!this.loggedIn) {
+      this.role = null;
+      return;
+    }
+    try {
+      const resp = await fetch(import.meta.env.VITE_API + "/me", {
+        credentials: "include",
+      });
+      if (!resp.ok) {
+        this.role = null;
+        return;
+      }
+      const me = await resp.json();
+      this.role = (me?.role as string) || null;
+      // store username on element for profile link
+      (this as any).__meUsername = me?.username || null;
+    } catch {
+      this.role = null;
+    }
   }
 
   private attachActionHandlers() {
@@ -66,6 +91,19 @@ export default class MainLayout extends ShadowComponent {
     ];
 
     const priv = [
+      ...(this.role === "admin"
+        ? [{ icon: "admin", label: "Admin", href: "/admin" }]
+        : []),
+      // profile link for logged in user
+      ...(this.loggedIn && (this as any).__meUsername
+        ? [
+            {
+              icon: "person",
+              label: "Profile",
+              href: "/@" + (this as any).__meUsername,
+            },
+          ]
+        : []),
       { icon: "bell", label: "Notifications", href: "/notifications" },
       { icon: "bookmark", label: "Bookmarks", href: "/bookmarks" },
       { icon: "stars", label: "Mrok AI", href: "/mrok-ai" },

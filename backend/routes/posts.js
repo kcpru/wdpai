@@ -8,12 +8,13 @@ import {
   toggleBookmark,
   listBookmarkedBy,
   searchPosts,
+  listPostsByUser,
 } from "../models/posts.js";
 import {
   createLikeNotification,
   removeLikeNotification,
 } from "../models/notifications.js";
-import { searchUsers } from "../models/users.js";
+import { searchUsers, getUserByUsername } from "../models/users.js";
 
 export async function postsRouter(req, res, url) {
   if (url.pathname === "/posts" && req.method === "GET") {
@@ -69,7 +70,7 @@ export async function postsRouter(req, res, url) {
       json(res, 400, { error: "invalid_id" });
       return true;
     }
-    const ok = await deletePost(id, user.id);
+    const ok = await deletePost(id, user.id, user.role || "user");
     if (!ok) {
       json(res, 403, { error: "forbidden_or_not_found" });
       return true;
@@ -142,6 +143,39 @@ export async function postsRouter(req, res, url) {
     const bookmark = Boolean(body?.bookmark);
     await toggleBookmark(id, user.id, bookmark);
     json(res, 200, { bookmarked: bookmark });
+    return true;
+  }
+
+  // GET /users/:username – public profile
+  if (req.method === "GET" && /^\/users\/.+/.test(url.pathname)) {
+    const username = decodeURIComponent(url.pathname.split("/")[2] || "");
+    if (!username) return false;
+    const user = await getUserByUsername(username);
+    if (!user) {
+      json(res, 404, { error: "not_found" });
+      return true;
+    }
+    // If path ends with /posts, return posts, else profile
+    if (url.pathname.endsWith("/posts")) {
+      const limit = Number(url.searchParams.get("limit") || 50);
+      const offset = Number(url.searchParams.get("offset") || 0);
+      const viewer = await currentUser(req).catch(() => null);
+      const posts = await listPostsByUser(
+        user.id,
+        limit,
+        offset,
+        viewer?.id ?? null
+      );
+      json(res, 200, { posts });
+      return true;
+    }
+    json(res, 200, {
+      id: user.id,
+      username: user.username,
+      avatar: user.avatar || null,
+      role: user.role,
+      created_at: user.created_at,
+    });
     return true;
   }
 

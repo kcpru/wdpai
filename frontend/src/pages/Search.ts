@@ -5,6 +5,7 @@ import { WC } from "../utils/wc";
 export default class SearchPage extends ShadowComponent {
   private abortSugg?: AbortController;
   private meId: number | null = null;
+  private meRole: string | null = null;
 
   connectedCallback() {
     this.render();
@@ -73,15 +74,18 @@ export default class SearchPage extends ShadowComponent {
 
   private async loadMe() {
     try {
-      const resp = await fetch(import.meta.env.VITE_API + "/me", { credentials: "include" });
+      const resp = await fetch(import.meta.env.VITE_API + "/me", {
+        credentials: "include",
+      });
       if (!resp.ok) return;
       const me = await resp.json();
       this.meId = Number(me?.id) || null;
+      this.meRole = (me?.role as string) || null;
     } catch {}
   }
 
   private async handleInput() {
-  const q = this.getQuery();
+    const q = this.getQuery();
     if (!q) return this.hideSuggestions();
     // Minimal suggestions: pokaż tylko aktualny termin jako klikany skrót
     this.showSuggestions([q]);
@@ -117,10 +121,12 @@ export default class SearchPage extends ShadowComponent {
     const term = q.trim();
     if (!term) return;
 
-  // sync UI field value
-  const field = this.qs<HTMLElement>("#q") as any;
-  const input = field?.shadowRoot?.querySelector("input") as HTMLInputElement | null;
-  if (input) input.value = term;
+    // sync UI field value
+    const field = this.qs<HTMLElement>("#q") as any;
+    const input = field?.shadowRoot?.querySelector(
+      "input"
+    ) as HTMLInputElement | null;
+    if (input) input.value = term;
     this.hideSuggestions();
 
     const resBox = this.qs<HTMLDivElement>("#res");
@@ -128,8 +134,14 @@ export default class SearchPage extends ShadowComponent {
 
     try {
       const [usersRes, postsRes] = await Promise.all([
-        fetch(`${import.meta.env.VITE_API}/search/users?q=${encodeURIComponent(term)}` , { credentials: 'include' }),
-        fetch(`${import.meta.env.VITE_API}/search/posts?q=${encodeURIComponent(term)}` , { credentials: 'include' }),
+        fetch(
+          `${import.meta.env.VITE_API}/search/users?q=${encodeURIComponent(term)}`,
+          { credentials: "include" }
+        ),
+        fetch(
+          `${import.meta.env.VITE_API}/search/posts?q=${encodeURIComponent(term)}`,
+          { credentials: "include" }
+        ),
       ]);
       const usersData = usersRes.ok ? await usersRes.json() : { users: [] };
       const postsData = postsRes.ok ? await postsRes.json() : { posts: [] };
@@ -145,7 +157,7 @@ export default class SearchPage extends ShadowComponent {
                 .map(
                   (u: any) => `
                     <div class="user" data-user="${u.username}">
-                      <y-avatar src="${u.avatar || ''}" alt="${u.username}"></y-avatar>
+                      <y-avatar src="${u.avatar || ""}" alt="${u.username}"></y-avatar>
                       <strong>@${this.escape(u.username)}</strong>
                     </div>
                   `
@@ -162,14 +174,20 @@ export default class SearchPage extends ShadowComponent {
                   pid="${p.id}"
                   text="${this.escape(p.content)}"
                   images='${JSON.stringify(p.images || [])}'
-                  username="${this.escape(p.username || '')}"
-                  avatar="${(p as any).avatar || ''}"
-                  created_at="${p.created_at || ''}"
+                  username="${this.escape(p.username || "")}"
+                  avatar="${(p as any).avatar || ""}"
+                  created_at="${p.created_at || ""}"
                   likes="${p.likes_count ?? 0}"
                   bookmarks="${p.bookmarks_count ?? 0}"
                   ${p.liked ? "liked" : ""}
                   ${p.bookmarked ? "bookmarked" : ""}
-                  ${p.user_id && this.meId && p.user_id === this.meId ? "author" : ""}
+                  ${
+                    (p.user_id && this.meId && p.user_id === this.meId) ||
+                    this.meRole === "admin" ||
+                    this.meRole === "moderator"
+                      ? "author"
+                      : ""
+                  }
                 ></y-post>
               `
             )
@@ -178,12 +196,12 @@ export default class SearchPage extends ShadowComponent {
       `;
 
       // Wire user clicks to navigate
-      this.qsa<HTMLElement>('.user').forEach((el) => {
-        el.addEventListener('click', () => {
-          const username = el.getAttribute('data-user') || '';
+      this.qsa<HTMLElement>(".user").forEach((el) => {
+        el.addEventListener("click", () => {
+          const username = el.getAttribute("data-user") || "";
           if (!username) return;
-          history.pushState({}, '', `/@${username}`);
-          window.dispatchEvent(new PopStateEvent('popstate'));
+          history.pushState({}, "", `/@${username}`);
+          window.dispatchEvent(new PopStateEvent("popstate"));
         });
       });
     } catch {
@@ -192,12 +210,17 @@ export default class SearchPage extends ShadowComponent {
   }
 
   private escape(s: string) {
-    return String(s || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    return String(s || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;");
   }
 
   private getQuery(): string {
     const field = this.qs<HTMLElement>("#q") as any;
-    const input = field?.shadowRoot?.querySelector("input") as HTMLInputElement | null;
+    const input = field?.shadowRoot?.querySelector(
+      "input"
+    ) as HTMLInputElement | null;
     return (input?.value || "").trim();
   }
 }

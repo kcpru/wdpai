@@ -11,12 +11,13 @@ export default class Home extends ShadowComponent {
     user_id?: number;
     username?: string;
     created_at?: string;
-  likes_count?: number;
-  liked?: boolean;
-  bookmarked?: boolean;
-  bookmarks_count?: number;
+    likes_count?: number;
+    liked?: boolean;
+    bookmarked?: boolean;
+    bookmarks_count?: number;
   }> = [];
   private meId: number | null = null;
+  private meRole: string | null = null;
 
   async connectedCallback() {
     await Promise.all([this.loadMe(), this.loadPosts()]);
@@ -46,6 +47,7 @@ export default class Home extends ShadowComponent {
       if (!resp.ok) return;
       const me = await resp.json();
       this.meId = Number(me?.id) || null;
+      this.meRole = (me?.role as string) || null;
     } catch {
       this.meId = null;
     }
@@ -85,13 +87,19 @@ export default class Home extends ShadowComponent {
               text="${this.escape(p.content)}"
               images='${JSON.stringify(p.images || [])}'
               username="${this.escape(p.username || "")}"
-              avatar="${(p as any).avatar || "" }"
+              avatar="${(p as any).avatar || ""}"
               created_at="${p.created_at || ""}"
               likes="${p.likes_count ?? 0}"
               bookmarks="${p.bookmarks_count ?? 0}"
               ${p.liked ? "liked" : ""}
               ${p.bookmarked ? "bookmarked" : ""}
-              ${p.user_id && this.meId && p.user_id === this.meId ? "author" : ""}
+              ${
+                (p.user_id && this.meId && p.user_id === this.meId) ||
+                this.meRole === "admin" ||
+                this.meRole === "moderator"
+                  ? "author"
+                  : ""
+              }
             ></y-post>`
         )
         .join("")}
