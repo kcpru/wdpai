@@ -32,9 +32,17 @@ export async function updateAvatar(userId, avatar) {
   return rows[0] || null;
 }
 
+export async function updateVibe(userId, vibe) {
+  const { rows } = await pool.query(
+    `UPDATE users SET vibe=$2 WHERE id=$1 RETURNING id, username, avatar, vibe`,
+    [userId, vibe]
+  );
+  return rows[0] || null;
+}
+
 export async function listUsers(limit = 100, offset = 0) {
   const { rows } = await pool.query(
-    `SELECT id, username, role, avatar, created_at FROM users ORDER BY id ASC LIMIT $1 OFFSET $2`,
+    `SELECT id, username, role, avatar, vibe, created_at FROM users ORDER BY id ASC LIMIT $1 OFFSET $2`,
     [limit, offset]
   );
   return rows;
@@ -93,7 +101,7 @@ export async function toggleFollow(followerId, followeeId, want) {
 
 export async function listFeedForUser(userId, limit = 50, offset = 0) {
   const { rows } = await pool.query(
-    `SELECT p.id, p.content, p.images, p.created_at,
+    `SELECT p.id, p.content, p.images, p.vibe, p.created_at,
             u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,

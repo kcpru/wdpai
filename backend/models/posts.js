@@ -1,18 +1,18 @@
 import pool from "../db/pool.js";
 
-export async function createPost(userId, content, images = []) {
+export async function createPost(userId, content, images = [], vibe = null) {
   const { rows } = await pool.query(
-    `INSERT INTO posts (user_id, content, images)
-     VALUES ($1, $2, $3)
-     RETURNING id, user_id, content, images, created_at`,
-    [userId, content, images]
+    `INSERT INTO posts (user_id, content, images, vibe)
+   VALUES ($1, $2, $3, $4)
+   RETURNING id, user_id, content, images, vibe, created_at`,
+    [userId, content, images, vibe]
   );
   return rows[0];
 }
 
 export async function listPosts(limit = 50, offset = 0, viewerId = null) {
   const { rows } = await pool.query(
-    `SELECT p.id, p.content, p.images, p.created_at,
+    `SELECT p.id, p.content, p.images, p.vibe, p.created_at,
       u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,
@@ -48,7 +48,7 @@ export async function listPostsByUser(
   viewerId = null
 ) {
   const { rows } = await pool.query(
-    `SELECT p.id, p.content, p.images, p.created_at,
+    `SELECT p.id, p.content, p.images, p.vibe, p.created_at,
       u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,
@@ -139,7 +139,7 @@ export async function toggleBookmark(postId, userId, want) {
 
 export async function listBookmarkedBy(userId, limit = 50, offset = 0) {
   const { rows } = await pool.query(
-    `SELECT p.id, p.content, p.images, p.created_at,
+    `SELECT p.id, p.content, p.images, p.vibe, p.created_at,
       u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,
@@ -169,7 +169,7 @@ export async function listBookmarkedBy(userId, limit = 50, offset = 0) {
 export async function searchPosts(q, limit = 20, offset = 0, viewerId = null) {
   const pattern = `%${q}%`;
   const { rows } = await pool.query(
-    `SELECT p.id, p.content, p.images, p.created_at,
+    `SELECT p.id, p.content, p.images, p.vibe, p.created_at,
             u.id as user_id, u.username, u.avatar,
             COALESCE(pl.cnt, 0) AS likes_count,
             COALESCE(bm.cnt, 0) AS bookmarks_count,

@@ -13,17 +13,19 @@ export default class SettingsPage extends ShadowComponent {
       </style>
 
       <div class="container">
-        <y-heading level="1">Settings</y-heading>
-        <y-card>
-          <div slot="header">
-            <p class="lede">Manage your account, appearance and security preferences.</p>
-          </div>
-          <div slot="body">
-            <y-tabs>
+        <div class="header">
+          <y-heading level="1">Settings</y-heading>
+          <p class="lede">Manage your account, appearance and security preferences.</p>
+        </div>
+
+           <y-tabs>
               <y-nav-link href="/settings/account">Account</y-nav-link>
               <y-nav-link href="/settings/appearance">Appearance</y-nav-link>
               <y-nav-link href="/settings/password-and-authentication">Security</y-nav-link>
             </y-tabs>
+        <y-card>
+          <div slot="body">
+           
             <div class="content">
               <y-route-outlet></y-route-outlet>
             </div>

@@ -87,16 +87,15 @@ async function resolvePath(
 }
 
 /* ---------- middleware ---------- */
-async function runMiddlewares(path: string, params: Record<string, string>) {
+async function runMiddlewares(
+  path: string,
+  params: Record<string, string>
+): Promise<{ allow: true } | { allow: false; redirect?: string }> {
   for (const mw of middlewares) {
     const res = await mw({ path, params });
-    if (res.allow) continue;
-
-    history.pushState({}, "", res.redirect);
-    if (res.redirect) await render(res.redirect);
-    return false;
+    if (!res.allow) return { allow: false, redirect: res.redirect };
   }
-  return true;
+  return { allow: true };
 }
 
 /* ---------- DOM mounting ---------- */
@@ -143,7 +142,16 @@ export async function render(path: string) {
     if (!res) return; // guard redirected
     const { stack, params, consumed, unmatched } = res;
 
-    if (!(await runMiddlewares("/" + consumed.join("/"), params))) return;
+    const mw = await runMiddlewares("/" + consumed.join("/"), params);
+    if (!mw.allow) {
+      if (mw.redirect) {
+        history.pushState({}, "", mw.redirect);
+        // allow re-entrant render for redirect
+        isRendering = false;
+        await render(mw.redirect);
+      }
+      return;
+    }
 
     if (!stack.length) {
       rootOutlet.innerHTML = "";

@@ -11,6 +11,7 @@ export default class Post extends ShadowComponent {
       "images",
       "author",
       "username",
+      "vibe",
       "likes",
       "liked",
       "bookmarked",
@@ -27,6 +28,7 @@ export default class Post extends ShadowComponent {
   images: string[] = [];
   author = false;
   username = "";
+  vibe: string | null = null;
   avatar = "";
   likes = 0;
   liked = false;
@@ -68,6 +70,7 @@ export default class Post extends ShadowComponent {
     }
     this.author = this.hasAttr("author");
     this.username = this.attr("username") ?? "";
+    this.vibe = this.attr("vibe") || null;
     this.avatar = this.attr("avatar") ?? "";
     this.likes = Number(this.attr("likes") || 0) || 0;
     this.liked = this.hasAttr("liked");
@@ -94,19 +97,13 @@ export default class Post extends ShadowComponent {
           box-sizing: border-box;
         }
 
-        .header {
-          display: flex;
-          align-items: center;
-          gap: var(--spacing-sm);
-        }
+  .header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--spacing-sm); }
 
   #username { font-weight: var(--font-semibold); }
   #username, #username a { color: hsl(var(--foreground)); text-decoration: none; }
   #username a:hover { text-decoration: underline; }
 
-        #timestamp {
-          color: hsl(var(--foreground) / 0.5);
-        }
+  #timestamp { color: hsl(var(--foreground) / 0.5); justify-self: end; }
 
         #content {
           margin-top: var(--spacing-md);
@@ -150,7 +147,7 @@ export default class Post extends ShadowComponent {
 
     <div class="header">
   <y-avatar src="${this.avatar || ""}" alt="Avatar image"></y-avatar>
-  <div id="username"><a href="/@${encodeURIComponent(this.username || "")}" data-user="${this.escape(this.username)}">@${this.escape(this.username)}</a></div>
+  <div id="username"><a href="/@${encodeURIComponent(this.username || "")}" data-user="${this.escape(this.username)}">@${this.escape(this.username)}</a> ${this.vibe ? `<span title="vibe">${this.vibe}</span>` : ``}</div>
         <div id="timestamp">–</div>
       </div>
 

@@ -17,12 +17,12 @@ export default class RegisterPage extends ShadowComponent {
   .file-name { font-size: var(--text-xs); color: hsl(var(--muted-foreground)); }
       </style>
 
-      <y-card>
-        <div slot="header">
+       <div class="header">
           <y-heading level="1">Create your account</y-heading>
           <p class="lede">A few details and you’re in — build, explore, and make things happen.</p>
         </div>
 
+      <y-card>
   <form slot="body" id="register-form" novalidate>
 
           <y-field id="username" type="text" required regex="^[\\w.-]{3,32}$">

@@ -6,6 +6,13 @@ type Middleware = (ctx: {
 }) => Promise<{ allow: boolean; redirect?: string }>;
 
 export const middlewares: Middleware[] = [
+  // Default sub-route for settings: redirect /settings -> /settings/account
+  async ({ path }) => {
+    if (path === "/settings") {
+      return { allow: false, redirect: "/settings/account" };
+    }
+    return { allow: true };
+  },
   async ({ path }) => {
     if (path.startsWith("/settings") || path.startsWith("/bookmarks")) {
       const ok = await authGuard();

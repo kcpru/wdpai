@@ -1,6 +1,11 @@
 import { json, readBody } from "../util/http.js";
 import { hashPassword, verifyPassword } from "../util/hash.js";
-import { createUser, getUserByUsername, updateAvatar } from "../models/users.js";
+import {
+  createUser,
+  getUserByUsername,
+  updateAvatar,
+  updateVibe,
+} from "../models/users.js";
 import { createSession, deleteSession } from "../models/sessions.js";
 import { currentUser } from "../util/auth-mw.js";
 
@@ -47,7 +52,13 @@ export async function authRouter(req, res, url) {
       json(res, 401, { error: "not authed" });
       return true;
     }
-  json(res, 200, { id: user.id, username: user.username, role: user.role, avatar: user.avatar || null });
+    json(res, 200, {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      avatar: user.avatar || null,
+      vibe: user.vibe || null,
+    });
     return true;
   }
 
@@ -61,7 +72,30 @@ export async function authRouter(req, res, url) {
     const body = await readBody(req).catch(() => ({}));
     const avatar = typeof body?.avatar === "string" ? body.avatar : "";
     const updated = await updateAvatar(user.id, avatar);
-    json(res, 200, { id: updated.id, username: updated.username, avatar: updated.avatar || null });
+    json(res, 200, {
+      id: updated.id,
+      username: updated.username,
+      avatar: updated.avatar || null,
+    });
+    return true;
+  }
+
+  // Update vibe (emoji)
+  if (req.method === "POST" && url.pathname === "/settings/vibe") {
+    const user = await currentUser(req);
+    if (!user) {
+      json(res, 401, { error: "not authed" });
+      return true;
+    }
+    const body = await readBody(req).catch(() => ({}));
+    const vibe = typeof body?.vibe === "string" ? body.vibe : null;
+    const updated = await updateVibe(user.id, vibe);
+    json(res, 200, {
+      id: updated.id,
+      username: updated.username,
+      avatar: updated.avatar || null,
+      vibe: updated.vibe || null,
+    });
     return true;
   }
 

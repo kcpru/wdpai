@@ -27,6 +27,28 @@ export default class SettingsAppearancePage extends ShadowComponent {
             <option value="blue">Blue</option>
             <option value="violet">Violet</option>
             <option value="green">Green</option>
+            <option value="teal">Teal</option>
+            <option value="orange">Orange</option>
+            <option value="rose">Rose</option>
+          </y-select>
+        </div>
+
+        <div class="field">
+          <label for="text-size">Text size</label>
+          <y-select id="text-size" block>
+            <option value="sm">Small</option>
+            <option value="md">Medium</option>
+            <option value="lg">Large</option>
+            <option value="xl">Extra large</option>
+          </y-select>
+        </div>
+
+        <div class="field">
+          <label for="radius">Corner radius</label>
+          <y-select id="radius" block>
+            <option value="default">Default</option>
+            <option value="square">Square</option>
+            <option value="rounded">Rounded</option>
           </y-select>
         </div>
 
@@ -36,6 +58,10 @@ export default class SettingsAppearancePage extends ShadowComponent {
 
         <label class="checkbox">
           <y-checkbox id="reduced">Reduced motion</y-checkbox>
+        </label>
+
+        <label class="checkbox">
+          <y-checkbox id="high-contrast">High contrast</y-checkbox>
         </label>
 
         <y-button type="submit">Save changes</y-button>
@@ -51,14 +77,20 @@ export default class SettingsAppearancePage extends ShadowComponent {
       e.preventDefault();
       const theme = (this.qs("#theme") as any).value as string;
       const accent = (this.qs("#accent") as any).value as string;
+      const textSize = (this.qs("#text-size") as any).value as string;
+      const radius = (this.qs("#radius") as any).value as string;
       const compact = (this.qs("#compact") as any).checked === true;
       const reduced = (this.qs("#reduced") as any).checked === true;
+      const highContrast = (this.qs("#high-contrast") as any).checked === true;
 
       const settings = {
         theme,
         accent,
+        textSize: textSize as TextSize,
+        radius: radius as Radius,
         compact,
         reduced,
+        highContrast,
       } as AppearanceSettings;
       this.saveSettings(settings);
       this.applySettings(settings);
@@ -80,8 +112,11 @@ export default class SettingsAppearancePage extends ShadowComponent {
         return {
           theme: "system",
           accent: "blue",
+          textSize: "md",
+          radius: "default",
           compact: false,
           reduced: false,
+          highContrast: false,
         };
       const parsed = JSON.parse(raw);
       return {
@@ -89,18 +124,30 @@ export default class SettingsAppearancePage extends ShadowComponent {
           parsed.theme === "light" || parsed.theme === "dark"
             ? parsed.theme
             : "system",
-        accent: ["blue", "violet", "green"].includes(parsed.accent)
+        accent: ["blue", "violet", "green", "teal", "orange", "rose"].includes(
+          parsed.accent
+        )
           ? parsed.accent
           : "blue",
+        textSize: ["sm", "md", "lg", "xl"].includes(parsed.textSize)
+          ? parsed.textSize
+          : "md",
+        radius: ["default", "square", "rounded"].includes(parsed.radius)
+          ? parsed.radius
+          : "default",
         compact: !!parsed.compact,
         reduced: !!parsed.reduced,
+        highContrast: !!parsed.highContrast,
       };
     } catch {
       return {
         theme: "system",
         accent: "blue",
+        textSize: "md",
+        radius: "default",
         compact: false,
         reduced: false,
+        highContrast: false,
       };
     }
   }
@@ -112,8 +159,11 @@ export default class SettingsAppearancePage extends ShadowComponent {
   private setUI(s: AppearanceSettings) {
     (this.qs("#theme") as any).value = s.theme;
     (this.qs("#accent") as any).value = s.accent;
+    (this.qs("#text-size") as any).value = s.textSize;
+    (this.qs("#radius") as any).value = s.radius;
     (this.qs("#compact") as any).checked = s.compact;
     (this.qs("#reduced") as any).checked = s.reduced;
+    (this.qs("#high-contrast") as any).checked = s.highContrast;
   }
 
   private applySettings(s: AppearanceSettings) {
@@ -124,8 +174,18 @@ export default class SettingsAppearancePage extends ShadowComponent {
       "accent-blue",
       "accent-violet",
       "accent-green",
+      "accent-teal",
+      "accent-orange",
+      "accent-rose",
       "compact",
-      "reduced-motion"
+      "reduced-motion",
+      "text-scale-sm",
+      "text-scale-md",
+      "text-scale-lg",
+      "text-scale-xl",
+      "radius-square",
+      "radius-rounded",
+      "high-contrast"
     );
 
     if (s.theme === "light") root.classList.add("force-light");
@@ -134,6 +194,14 @@ export default class SettingsAppearancePage extends ShadowComponent {
     root.classList.add(`accent-${s.accent}`);
     if (s.compact) root.classList.add("compact");
     if (s.reduced) root.classList.add("reduced-motion");
+
+    // text size
+    root.classList.add(`text-scale-${s.textSize}`);
+    // corner radius
+    if (s.radius === "square") root.classList.add("radius-square");
+    if (s.radius === "rounded") root.classList.add("radius-rounded");
+    // high contrast
+    if (s.highContrast) root.classList.add("high-contrast");
   }
 }
 
@@ -143,10 +211,15 @@ customElements.define(
 );
 
 type ThemeMode = "system" | "light" | "dark";
-type Accent = "blue" | "violet" | "green";
+type Accent = "blue" | "violet" | "green" | "teal" | "orange" | "rose";
+type TextSize = "sm" | "md" | "lg" | "xl";
+type Radius = "default" | "square" | "rounded";
 type AppearanceSettings = {
   theme: ThemeMode;
   accent: Accent;
+  textSize: TextSize;
+  radius: Radius;
   compact: boolean;
   reduced: boolean;
+  highContrast: boolean;
 };

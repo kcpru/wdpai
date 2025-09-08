@@ -17,11 +17,13 @@ export default class LoginPage extends ShadowComponent {
         .error[hidden] { display: none; }
       </style>
 
-      <y-card>
-        <div slot="header">
+ <div class="header">
           <y-heading level="1">Welcome back</y-heading>
           <p class="lede">Sign in to continue your journey — secure, swift, and distraction-free.</p>
         </div>
+
+      <y-card>
+       
 
         <form slot="body" id="login-form" novalidate>
           <y-field id="username" type="text" required regex="^[\\w.-]{3,32}$">

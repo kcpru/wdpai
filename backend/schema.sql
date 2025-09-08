@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Add avatar column if missing
 ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT;
+-- Add vibe column if missing (current emoji vibe)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS vibe TEXT;
 
 CREATE TABLE IF NOT EXISTS sessions (
   token    TEXT PRIMARY KEY,
@@ -20,8 +22,12 @@ CREATE TABLE IF NOT EXISTS posts (
   user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   content     TEXT    NOT NULL,
   images      TEXT[]  NOT NULL DEFAULT '{}',
+  vibe        TEXT,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Add vibe column to posts if missing (for existing databases)
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS vibe TEXT;
 
 -- Users can like posts (one like per user per post)
 CREATE TABLE IF NOT EXISTS post_likes (

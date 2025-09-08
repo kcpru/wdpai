@@ -145,6 +145,37 @@ export default class CreatePost extends ShadowComponent {
           box-shadow: var(--shadow-outline);
           outline: none;
         }
+        /* Vibe / Emoji picker */
+        #vibe-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: var(--spacing-sm);
+          position: relative; /* anchor popup */
+        }
+        #vibe-chip { display: inline-flex; align-items: center; gap: .5rem; }
+        .chip {
+          display: inline-flex;
+          align-items: center;
+          gap: .375rem;
+          padding: .25rem .5rem;
+          border-radius: 999px;
+          background: hsl(var(--muted));
+          border: 1px solid hsl(var(--border));
+          font-size: var(--text-sm);
+        }
+        .chip button {
+          background: none; border: none; color: inherit; cursor: pointer;
+        }
+        /* Popover: position picker below the row, visibility still controlled by component */
+        y-emoji-picker {
+          position: absolute;
+          top: calc(100% + .25rem);
+          right: 0;
+          z-index: 1000;
+          box-shadow: 0 6px 24px rgba(0,0,0,.12);
+        }
+  /* y-emoji-picker manages its own visibility */
         .footer {
           display: flex;
           justify-content: space-between;
@@ -160,6 +191,10 @@ export default class CreatePost extends ShadowComponent {
           <span id="counter" class="counter">0/1000</span>
         </div>
         <div class="previews" id="previews" aria-live="polite" aria-atomic="true"></div>
+        <div id="vibe-row">
+          <div id="vibe-chip"></div>
+          <y-emoji-picker id="emoji-picker"></y-emoji-picker>
+        </div>
         <input type="file" id="file-input" accept="image/*" multiple hidden />
         <div class="footer">
           <div class="actions">${actionButtons}</div>
@@ -191,12 +226,15 @@ export default class CreatePost extends ShadowComponent {
     const counter = this.qs<HTMLSpanElement>("#counter");
     const fileInput = this.qs<HTMLInputElement>("#file-input");
     const previews = this.qs<HTMLDivElement>("#previews");
+    const emojiPicker = this.qs<any>("#emoji-picker");
+    const vibeChip = this.qs<HTMLDivElement>("#vibe-chip");
     const MAX = 1000;
     const MAX_IMAGES = 4;
     const MAX_SIZE = 5 * 1024 * 1024; // 5MB
     let posting = false;
     let images: Array<{ url: string; dataUrl?: string; file: File }> = [];
     let pendingReads: Promise<void>[] = [];
+    let selectedEmoji: string | null = null;
 
     const text = () => (contentEl.innerText || "").replace(/\s+/g, " ").trim();
 
@@ -211,10 +249,27 @@ export default class CreatePost extends ShadowComponent {
       if (postBtn)
         postBtn.toggleAttribute(
           "disabled",
-          posting || !authedState || (len === 0 && images.length === 0)
+          posting ||
+            !authedState ||
+            (len === 0 && images.length === 0 && !selectedEmoji)
         );
+      renderVibeChip();
     };
 
+    const renderVibeChip = () => {
+      if (!vibeChip) return;
+      vibeChip.innerHTML = selectedEmoji
+        ? `<span class="chip" aria-label="Selected vibe">${selectedEmoji} <button type="button" id="clear-vibe" aria-label="Clear vibe">×</button></span>`
+        : "";
+      const clear = vibeChip.querySelector<HTMLButtonElement>("#clear-vibe");
+      if (clear)
+        clear.addEventListener("click", () => {
+          selectedEmoji = null;
+          emojiPicker?.clear?.();
+          renderVibeChip();
+          updateState();
+        });
+    };
     const placeCaretAtEnd = (el: HTMLElement) => {
       el.focus();
       const range = document.createRange();
@@ -231,7 +286,6 @@ export default class CreatePost extends ShadowComponent {
     contentEl.addEventListener("paste", (e: ClipboardEvent) => {
       e.preventDefault();
       const text = e.clipboardData?.getData("text/plain") || "";
-      document.execCommand("insertText", false, text);
       updateState();
     });
     // Ctrl+Enter to post
@@ -273,10 +327,15 @@ export default class CreatePost extends ShadowComponent {
       if (files.length) addFiles(files);
     });
 
-    // Action buttons: trigger file input on image icon
+    // Action buttons: trigger file input on image icon, toggle emoji picker on emoji icon
     this.qsa<HTMLElement>(".actions y-button").forEach((btn) => {
       btn.addEventListener("click-event" as any, () => {
-        if (btn.getAttribute("data-action") === "image") fileInput.click();
+        const action = btn.getAttribute("data-action");
+        if (action === "image") {
+          fileInput.click();
+        } else if (action === "emoji") {
+          toggleEmojiPicker();
+        }
       });
     });
 
@@ -366,9 +425,43 @@ export default class CreatePost extends ShadowComponent {
     // Initial state
     updateState();
 
+    // Wire emoji picker change
+    if (emojiPicker) {
+      emojiPicker.addEventListener("change", (e: any) => {
+        selectedEmoji = e?.detail?.value || null;
+        emojiPicker.open = false;
+        renderVibeChip();
+        updateState();
+      });
+    }
+
+    function toggleEmojiPicker() {
+      if (!emojiPicker) return;
+      emojiPicker.open = !emojiPicker.open;
+    }
+
+    // Close picker when clicking outside of it (within shadow root)
+    this.root.addEventListener("click", (ev) => {
+      const path = ev.composedPath() as Array<EventTarget>;
+      const top = path[0] as HTMLElement | undefined;
+      const withinPicker =
+        top && emojiPicker
+          ? emojiPicker.contains?.(top) || path.includes(emojiPicker)
+          : false;
+      const isEmojiAction = path.some(
+        (n) =>
+          n instanceof HTMLElement &&
+          n.getAttribute &&
+          n.getAttribute("data-action") === "emoji"
+      );
+      if (emojiPicker && emojiPicker.open && !withinPicker && !isEmojiAction) {
+        emojiPicker.open = false;
+      }
+    });
+
     postBtn?.addEventListener("click-event" as any, async () => {
       const content = text();
-      if (!content && images.length === 0) {
+      if (!content && images.length === 0 && !selectedEmoji) {
         toaster.create({
           title: "Empty post",
           description: "Please enter some content or add images",
@@ -393,6 +486,7 @@ export default class CreatePost extends ShadowComponent {
             credentials: "include",
             body: JSON.stringify({
               content,
+              vibe: selectedEmoji,
               images: images.map((i) => i.dataUrl || ""),
             }),
           });
@@ -411,6 +505,10 @@ export default class CreatePost extends ShadowComponent {
           images.forEach((i) => URL.revokeObjectURL(i.url));
           images = [];
           updatePreviews();
+          const postedVibe = data?.post?.vibe ?? selectedEmoji ?? null;
+          selectedEmoji = null;
+          emojiPicker?.clear?.();
+          renderVibeChip();
           // emit event for parent lists
           this.dispatchEvent(
             new CustomEvent("post-created", {
@@ -419,6 +517,7 @@ export default class CreatePost extends ShadowComponent {
                 user_id: me?.id ?? data.post?.user_id,
                 username: me?.username ?? "",
                 avatar: me?.avatar ?? "",
+                vibe: postedVibe,
               },
               bubbles: true,
               composed: true,

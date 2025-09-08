@@ -32,6 +32,7 @@ import "./components/shared/separator";
 import "./components/shared/heading";
 import "./components/shared/tabs";
 import "./components/shared/checkbox";
+import "./components/shared/emoji-picker";
 
 // import "./image.js"; - lazy loading, zoomable, etc.
 // import "./textarea.js";

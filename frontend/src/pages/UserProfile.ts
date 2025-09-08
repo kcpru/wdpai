@@ -106,8 +106,24 @@ export default class UserProfile extends ShadowComponent {
         <div slot="body" style="display:flex; gap: var(--spacing-md); align-items:center;">
           <y-avatar style="--avatar-size: 4rem;" src="${this.profile.avatar || ""}" alt="${this.profile.username}"></y-avatar>
           <div>
-            <y-heading level="1">@${this.escape(this.profile.username)}</y-heading>
+            <y-heading level="1">@${this.escape(this.profile.username)} ${this.profile.vibe ? `<span title="vibe">${this.profile.vibe}</span>` : ``}</y-heading>
             <div style="color:hsl(var(--muted-foreground));">Joined ${this.fmtDate(this.profile.created_at)}</div>
+            ${
+              this.isSelfOrMod() && this.me.id === this.profile.id
+                ? `
+              <div style="display:flex; align-items:center; gap:.5rem; margin-top:.5rem;">
+                <span style="color:hsl(var(--muted-foreground));">Your vibe:</span>
+                <div id="vibe-chip">${this.profile.vibe ? `<span class="chip">${this.profile.vibe}</span>` : `<span style="color:hsl(var(--muted-foreground));">none</span>`}</div>
+                <y-emoji-picker id="picker"></y-emoji-picker>
+                <y-button id="pick-vibe" variant="outline" icon-only aria-label="Pick vibe"><y-icon icon="emoji" slot="icon"></y-icon></y-button>
+                <y-button id="save-vibe" variant="primary">Save</y-button>
+                <style>
+                  .chip { display:inline-flex; align-items:center; gap:.375rem; padding:.25rem .5rem; border-radius:999px; background:hsl(var(--muted)); border:1px solid hsl(var(--border)); font-size: var(--text-sm); }
+                </style>
+              </div>
+            `
+                : ``
+            }
           </div>
               <div style="margin-left:auto; display:flex; align-items:center; gap:.5rem; flex-wrap: wrap; justify-content:flex-end;">
             ${
@@ -132,6 +148,7 @@ export default class UserProfile extends ShadowComponent {
             text="${this.escape(p.content)}"
             images='${JSON.stringify(p.images || [])}'
             username="${this.escape(p.username || "")}"
+            vibe="${(p as any).vibe || ""}"
             avatar="${p.avatar || ""}"
             created_at="${p.created_at || ""}"
             likes="${p.likes_count ?? 0}"
@@ -167,6 +184,51 @@ export default class UserProfile extends ShadowComponent {
         </div>
       </div>
     `;
+    // Vibe pick/save for self
+    const pickBtn = this.root.querySelector("#pick-vibe") as HTMLElement | null;
+    const saveBtn = this.root.querySelector("#save-vibe") as HTMLElement | null;
+    const picker = this.root.querySelector("#picker") as any;
+    const chip = this.root.querySelector("#vibe-chip") as HTMLElement | null;
+    if (picker && this.profile && this.me.id === this.profile.id) {
+      picker.value = this.profile.vibe || null;
+      picker.open = false;
+      pickBtn?.addEventListener("click", () => {
+        picker.open = !picker.open;
+      });
+      picker.addEventListener("change", (e: any) => {
+        const v = e?.detail?.value || null;
+        if (chip)
+          chip.innerHTML = v
+            ? `<span class="chip">${v}</span>`
+            : `<span style=\"color:hsl(var(--muted-foreground));\">none</span>`;
+      });
+      saveBtn?.addEventListener("click", async () => {
+        const v = picker.value || null;
+        const prev = this.profile.vibe || null;
+        this.profile.vibe = v;
+        try {
+          const resp = await fetch(
+            `${import.meta.env.VITE_API}/settings/vibe`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ vibe: v }),
+            }
+          );
+          if (!resp.ok) throw new Error("vibe_fail");
+          toaster.create({
+            type: "success",
+            title: "Vibe updated",
+            description: v ? `Set to ${v}` : "Cleared",
+          });
+          this.render();
+        } catch {
+          this.profile.vibe = prev;
+          toaster.create({ type: "error", title: "Could not update vibe" });
+        }
+      });
+    }
 
     const btn = this.root.querySelector("#follow-btn") as HTMLElement | null;
     if (btn) {

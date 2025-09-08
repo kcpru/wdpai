@@ -89,8 +89,11 @@
 
   /* filters */
   --backdrop-blur: 10px;
+}
 
-  @media (prefers-color-scheme: dark) {
+/* Auto dark mode (system preference) */
+@media (prefers-color-scheme: dark) {
+  :root {
     --background: 222 50% 5%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
@@ -110,6 +113,75 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
+  }
+  /* accent-aware neutral tint in auto-dark mode */
+  :root.accent-blue {
+    --muted-foreground: 215 22% 72%;
+    --border: 217 25% 18%;
+    --input: 217 25% 18%;
+    --secondary: 222 45% 8.5%;
+    --muted: 222 45% 8.5%;
+    --accent: 222 45% 8.5%;
+  }
+  :root.accent-violet {
+    /* tilt darkest bases to violet */
+    --background: 262 35% 5.2%;
+    --card: 262 42% 6.5%;
+    --popover: 262 42% 6.5%;
+    --muted-foreground: 260 24% 72%;
+    --border: 260 26% 18%;
+    --input: 260 26% 18%;
+    --secondary: 260 35% 9%;
+    --muted: 260 35% 9%;
+    --accent: 260 35% 9%;
+  }
+  :root.accent-green {
+    /* tilt darkest bases to green */
+    --background: 150 30% 5.2%;
+    --card: 150 38% 6.5%;
+    --popover: 150 38% 6.5%;
+    --muted-foreground: 150 24% 72%;
+    --border: 150 26% 18%;
+    --input: 150 26% 18%;
+    --secondary: 150 35% 9%;
+    --muted: 150 35% 9%;
+    --accent: 150 35% 9%;
+  }
+  :root.accent-teal {
+    /* tilt darkest bases to teal */
+    --background: 175 32% 5.2%;
+    --card: 175 40% 6.5%;
+    --popover: 175 40% 6.5%;
+    --muted-foreground: 175 24% 72%;
+    --border: 175 26% 18%;
+    --input: 175 26% 18%;
+    --secondary: 175 35% 9%;
+    --muted: 175 35% 9%;
+    --accent: 175 35% 9%;
+  }
+  :root.accent-orange {
+    /* tilt darkest bases to orange */
+    --background: 24 28% 5.2%;
+    --card: 24 36% 6.5%;
+    --popover: 24 36% 6.5%;
+    --muted-foreground: 24 24% 72%;
+    --border: 24 26% 18%;
+    --input: 24 26% 18%;
+    --secondary: 24 35% 9%;
+    --muted: 24 35% 9%;
+    --accent: 24 35% 9%;
+  }
+  :root.accent-rose {
+    /* tilt darkest bases to rose */
+    --background: 350 28% 5.2%;
+    --card: 350 36% 6.5%;
+    --popover: 350 36% 6.5%;
+    --muted-foreground: 350 24% 72%;
+    --border: 350 26% 18%;
+    --input: 350 26% 18%;
+    --secondary: 350 35% 9%;
+    --muted: 350 35% 9%;
+    --accent: 350 35% 9%;
   }
 }
 
@@ -157,19 +229,225 @@
   --input: 217.2 32.6% 17.5%;
   --ring: 224.3 76.3% 48%;
 }
+/* accent-aware neutral tint in force-dark mode */
+:root.force-dark.accent-blue {
+  --muted-foreground: 215 22% 72%;
+  --border: 217 25% 18%;
+  --input: 217 25% 18%;
+  --secondary: 222 45% 8.5%;
+  --muted: 222 45% 8.5%;
+  --accent: 222 45% 8.5%;
+}
+:root.force-dark.accent-violet {
+  --background: 262 35% 5.2%;
+  --card: 262 42% 6.5%;
+  --popover: 262 42% 6.5%;
+  --muted-foreground: 260 24% 72%;
+  --border: 260 26% 18%;
+  --input: 260 26% 18%;
+  --secondary: 260 35% 9%;
+  --muted: 260 35% 9%;
+  --accent: 260 35% 9%;
+}
+:root.force-dark.accent-green {
+  --background: 150 30% 5.2%;
+  --card: 150 38% 6.5%;
+  --popover: 150 38% 6.5%;
+  --muted-foreground: 150 24% 72%;
+  --border: 150 26% 18%;
+  --input: 150 26% 18%;
+  --secondary: 150 35% 9%;
+  --muted: 150 35% 9%;
+  --accent: 150 35% 9%;
+}
+:root.force-dark.accent-teal {
+  --background: 175 32% 5.2%;
+  --card: 175 40% 6.5%;
+  --popover: 175 40% 6.5%;
+  --muted-foreground: 175 24% 72%;
+  --border: 175 26% 18%;
+  --input: 175 26% 18%;
+  --secondary: 175 35% 9%;
+  --muted: 175 35% 9%;
+  --accent: 175 35% 9%;
+}
+:root.force-dark.accent-orange {
+  --background: 24 28% 5.2%;
+  --card: 24 36% 6.5%;
+  --popover: 24 36% 6.5%;
+  --muted-foreground: 24 24% 72%;
+  --border: 24 26% 18%;
+  --input: 24 26% 18%;
+  --secondary: 24 35% 9%;
+  --muted: 24 35% 9%;
+  --accent: 24 35% 9%;
+}
+:root.force-dark.accent-rose {
+  --background: 350 28% 5.2%;
+  --card: 350 36% 6.5%;
+  --popover: 350 36% 6.5%;
+  --muted-foreground: 350 24% 72%;
+  --border: 350 26% 18%;
+  --input: 350 26% 18%;
+  --secondary: 350 35% 9%;
+  --muted: 350 35% 9%;
+  --accent: 350 35% 9%;
+}
 
-/* Accent color quick themes */
-:root.accent-blue {
-  --primary: 221.2 83.2% 53.3%;
-  --ring: 221.2 83.2% 53.3%;
+/* Accent color quick themes (light mode) */
+@media (prefers-color-scheme: light) {
+  :root.accent-blue {
+    --primary: 221.2 83.2% 53.3%;
+    --ring: 221.2 83.2% 53.3%;
+    /* subtle blue tint across neutrals (light) */
+    --foreground: 220 84% 5.5%;
+    --card-foreground: 220 84% 5.5%;
+    --popover-foreground: 220 84% 5.5%;
+    --muted-foreground: 220 16% 47%;
+    --border: 220 32% 90.5%;
+    --input: 220 32% 90.5%;
+    --secondary: 215 45% 96.5%;
+    --muted: 215 45% 96.5%;
+    --accent: 215 45% 96.5%;
+  }
+  :root.accent-violet {
+    --primary: 262 83% 58%;
+    --ring: 262 83% 58%;
+    /* violet tint (light) */
+    --foreground: 258 60% 6%;
+    --card-foreground: 258 60% 6%;
+    --popover-foreground: 258 60% 6%;
+    --muted-foreground: 258 20% 47%;
+    --border: 258 28% 91%;
+    --input: 258 28% 91%;
+    --secondary: 258 35% 96.5%;
+    --muted: 258 35% 96.5%;
+    --accent: 258 35% 96.5%;
+  }
+  :root.accent-green {
+    --primary: 142 76% 36%;
+    --ring: 142 76% 36%;
+    /* green tint (light) */
+    --foreground: 150 22% 5.5%;
+    --card-foreground: 150 22% 5.5%;
+    --popover-foreground: 150 22% 5.5%;
+    --muted-foreground: 150 18% 47%;
+    --border: 150 26% 90.5%;
+    --input: 150 26% 90.5%;
+    --secondary: 150 38% 96.5%;
+    --muted: 150 38% 96.5%;
+    --accent: 150 38% 96.5%;
+  }
+  :root.accent-teal {
+    --primary: 173 80% 36%;
+    --ring: 173 80% 36%;
+    /* teal tint (light) */
+    --foreground: 176 35% 6%;
+    --card-foreground: 176 35% 6%;
+    --popover-foreground: 176 35% 6%;
+    --muted-foreground: 176 20% 47%;
+    --border: 176 28% 90.5%;
+    --input: 176 28% 90.5%;
+    --secondary: 176 40% 96.5%;
+    --muted: 176 40% 96.5%;
+    --accent: 176 40% 96.5%;
+  }
+  :root.accent-orange {
+    --primary: 24 95% 53%;
+    --ring: 24 95% 53%;
+    /* orange tint (light) */
+    --foreground: 24 70% 6%;
+    --card-foreground: 24 70% 6%;
+    --popover-foreground: 24 70% 6%;
+    --muted-foreground: 24 30% 47%;
+    --border: 24 35% 90.5%;
+    --input: 24 35% 90.5%;
+    --secondary: 24 38% 96.5%;
+    --muted: 24 38% 96.5%;
+    --accent: 24 38% 96.5%;
+  }
+  :root.accent-rose {
+    --primary: 350 89% 60%;
+    --ring: 350 89% 60%;
+    /* rose tint (light) */
+    --foreground: 350 65% 6%;
+    --card-foreground: 350 65% 6%;
+    --popover-foreground: 350 65% 6%;
+    --muted-foreground: 350 30% 47%;
+    --border: 350 35% 90.5%;
+    --input: 350 35% 90.5%;
+    --secondary: 350 38% 96.5%;
+    --muted: 350 38% 96.5%;
+    --accent: 350 38% 96.5%;
+  }
 }
-:root.accent-violet {
-  --primary: 262 83% 58%;
-  --ring: 262 83% 58%;
+
+/* Force light mode accent tints */
+:root.force-light.accent-blue {
+  --foreground: 220 84% 5.5%;
+  --card-foreground: 220 84% 5.5%;
+  --popover-foreground: 220 84% 5.5%;
+  --muted-foreground: 220 16% 47%;
+  --border: 220 32% 90.5%;
+  --input: 220 32% 90.5%;
+  --secondary: 215 45% 96.5%;
+  --muted: 215 45% 96.5%;
+  --accent: 215 45% 96.5%;
 }
-:root.accent-green {
-  --primary: 142 76% 36%;
-  --ring: 142 76% 36%;
+:root.force-light.accent-violet {
+  --foreground: 258 60% 6%;
+  --card-foreground: 258 60% 6%;
+  --popover-foreground: 258 60% 6%;
+  --muted-foreground: 258 20% 47%;
+  --border: 258 28% 91%;
+  --input: 258 28% 91%;
+  --secondary: 258 35% 96.5%;
+  --muted: 258 35% 96.5%;
+  --accent: 258 35% 96.5%;
+}
+:root.force-light.accent-green {
+  --foreground: 150 22% 5.5%;
+  --card-foreground: 150 22% 5.5%;
+  --popover-foreground: 150 22% 5.5%;
+  --muted-foreground: 150 18% 47%;
+  --border: 150 26% 90.5%;
+  --input: 150 26% 90.5%;
+  --secondary: 150 38% 96.5%;
+  --muted: 150 38% 96.5%;
+  --accent: 150 38% 96.5%;
+}
+:root.force-light.accent-teal {
+  --foreground: 176 35% 6%;
+  --card-foreground: 176 35% 6%;
+  --popover-foreground: 176 35% 6%;
+  --muted-foreground: 176 20% 47%;
+  --border: 176 28% 90.5%;
+  --input: 176 28% 90.5%;
+  --secondary: 176 40% 96.5%;
+  --muted: 176 40% 96.5%;
+  --accent: 176 40% 96.5%;
+}
+:root.force-light.accent-orange {
+  --foreground: 24 70% 6%;
+  --card-foreground: 24 70% 6%;
+  --popover-foreground: 24 70% 6%;
+  --muted-foreground: 24 30% 47%;
+  --border: 24 35% 90.5%;
+  --input: 24 35% 90.5%;
+  --secondary: 24 38% 96.5%;
+  --muted: 24 38% 96.5%;
+  --accent: 24 38% 96.5%;
+}
+:root.force-light.accent-rose {
+  --foreground: 350 65% 6%;
+  --card-foreground: 350 65% 6%;
+  --popover-foreground: 350 65% 6%;
+  --muted-foreground: 350 30% 47%;
+  --border: 350 35% 90.5%;
+  --input: 350 35% 90.5%;
+  --secondary: 350 38% 96.5%;
+  --muted: 350 38% 96.5%;
+  --accent: 350 38% 96.5%;
 }
 
 /* Reduced motion */
@@ -182,4 +460,46 @@
 :root.compact {
   --spacing-step: 0.15rem;
   --radius: 0.2rem;
+}
+
+/* Text scale */
+:root.text-scale-sm {
+  --text-xs: 0.7rem;
+  --text-sm: 0.8rem;
+  --text-base: 0.9rem;
+  --text-lg: 1rem;
+  --text-xl: 1.1rem;
+  --text-2xl: 1.25rem;
+}
+
+:root.text-scale-lg {
+  --text-xs: 0.8rem;
+  --text-sm: 0.9rem;
+  --text-base: 1.05rem;
+  --text-lg: 1.2rem;
+  --text-xl: 1.35rem;
+  --text-2xl: 1.6rem;
+}
+:root.text-scale-xl {
+  --text-xs: 0.9rem;
+  --text-sm: 1rem;
+  --text-base: 1.15rem;
+  --text-lg: 1.35rem;
+  --text-xl: 1.6rem;
+  --text-2xl: 1.9rem;
+}
+
+/* Radius variants */
+:root.radius-square {
+  --radius: 0rem;
+}
+:root.radius-rounded {
+  --radius: 0.5rem;
+}
+
+/* High contrast helper */
+:root.high-contrast {
+  --border: 0 0% 0%;
+  --muted-foreground: 0 0% 0%;
+  --ring: var(--primary);
 }

@@ -77,7 +77,7 @@ export default class ConfirmDialog extends ShadowComponent {
         :host([open]) .dialog { transform: translateY(0) scale(1); opacity: 1; }
         header, footer { padding: var(--spacing-lg); }
         header { border-bottom: 1px solid hsl(var(--border)); }
-        footer { border-top: 1px solid hsl(var(--border)); display: flex; gap: var(--spacing-sm); justify-content: flex-end; }
+        footer { display: flex; gap: var(--spacing-sm); justify-content: flex-end; }
         h2 { margin: 0 0 .25rem 0; font-size: var(--text-xl); }
         p { margin: 0; color: hsl(var(--muted-foreground)); }
 

@@ -71,6 +71,7 @@ export default class Home extends ShadowComponent {
     this.html`
       <style>
         :host { display:block; width:100%; }
+        y-create-post-gate { width: 100%; }
   .container { width: min(100%, var(--sm)); display:flex; flex-direction:column; align-items:center; gap: var(--spacing-md); margin-bottom: calc(2 * var(--spacing-xl)); }
       </style>
       <div class="container">
@@ -84,6 +85,7 @@ export default class Home extends ShadowComponent {
                 text="${this.escape(p.content)}"
                 images='${JSON.stringify(p.images || [])}'
                 username="${this.escape(p.username || "")}"
+                vibe="${(p as any).vibe || ""}"
                 avatar="${(p as any).avatar || ""}"
                 created_at="${p.created_at || ""}"
                 likes="${p.likes_count ?? 0}"

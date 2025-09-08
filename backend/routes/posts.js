@@ -117,7 +117,14 @@ export async function postsRouter(req, res, url) {
       return true;
     }
     const images = Array.isArray(body.images) ? body.images : [];
-    const post = await createPost(user.id, body.content.slice(0, 1000), images);
+    const vibe =
+      typeof body.vibe === "string" && body.vibe.length <= 4 ? body.vibe : null;
+    const post = await createPost(
+      user.id,
+      body.content.slice(0, 1000),
+      images,
+      vibe
+    );
     json(res, 201, { post });
     return true;
   }
@@ -246,6 +253,7 @@ export async function postsRouter(req, res, url) {
       id: user.id,
       username: user.username,
       avatar: user.avatar || null,
+      vibe: user.vibe || null,
       role: user.role,
       created_at: user.created_at,
       following,
