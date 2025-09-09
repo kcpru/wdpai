@@ -1,4 +1,6 @@
 import { createServer } from "node:http";
+import fs from "node:fs";
+import path from "node:path";
 import { authRouter } from "./routes/auth.js";
 import { adminRouter } from "./routes/admin.js";
 import { postsRouter } from "./routes/posts.js";
@@ -38,6 +40,35 @@ createServer(async (req, res) => {
   }
 
   const url = new URL(req.url, `http://${req.headers.host}`);
+
+  // Serve uploaded avatars
+  if (url.pathname.startsWith("/uploads/")) {
+    const filePath = path.resolve(
+      path.dirname(new URL(import.meta.url).pathname),
+      "." + url.pathname
+    );
+    try {
+      const stat = await fs.promises.stat(filePath);
+      if (!stat.isFile()) throw new Error("not file");
+      const ext = path.extname(filePath).toLowerCase();
+      const type =
+        ext === ".png"
+          ? "image/png"
+          : ext === ".jpg" || ext === ".jpeg"
+          ? "image/jpeg"
+          : ext === ".webp"
+          ? "image/webp"
+          : "application/octet-stream";
+      res.writeHead(200, {
+        "Content-Type": type,
+        "Cache-Control": "public, max-age=31536000, immutable",
+      });
+      fs.createReadStream(filePath).pipe(res);
+    } catch {
+      json(res, 404, { error: "not found" });
+    }
+    return;
+  }
 
   if (await authRouter(req, res, url)) return;
   if (await adminRouter(req, res, url)) return;

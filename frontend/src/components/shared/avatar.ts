@@ -41,6 +41,12 @@ export default class Avatar extends ShadowComponent {
 
   renderAvatar(src: string) {
     const avatarElement = this.qs<HTMLDivElement>("#avatar");
-    avatarElement.style.backgroundImage = `url(${src})`;
+    let url = src || "";
+    if (url && !/^https?:\/\//i.test(url) && !/^data:/i.test(url)) {
+      // Treat as API-relative path (e.g., /uploads/avatars/..)
+      const base = (import.meta as any).env?.VITE_API || "";
+      url = base.replace(/\/$/, "") + (url.startsWith("/") ? url : "/" + url);
+    }
+    avatarElement.style.backgroundImage = url ? `url(${url})` : "none";
   }
 }

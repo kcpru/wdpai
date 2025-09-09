@@ -41,11 +41,6 @@ export default class RegisterPage extends ShadowComponent {
             <span slot="label">Confirm password</span>
             <span slot="error-text">Passwords must match exactly.</span>
           </y-field>
-
-          <y-field id="avatar" type="url">
-            <span slot="label">Avatar URL (optional)</span>
-            <span slot="helper-text">Paste a direct image URL or upload a file below.</span>
-          </y-field>
           <div class="upload-row">
             <input type="file" id="avatar-file" accept="image/*" hidden />
             <y-button id="pick-file" variant="outline" aria-label="Browse file">
@@ -85,7 +80,6 @@ export default class RegisterPage extends ShadowComponent {
     this.on("#username", "input", update);
     this.on("#password", "input", update);
     this.on("#confirm", "input", update);
-    this.on("#avatar", "input", update);
     // initial state
     this.updateDisabled();
 
@@ -127,9 +121,8 @@ export default class RegisterPage extends ShadowComponent {
     const username = this.inputValue("#username").trim();
     const password = this.inputValue("#password");
     const confirm = this.inputValue("#confirm");
-    const avatar = this.inputValue("#avatar").trim();
     const fileEl = this.qs<HTMLInputElement>("#avatar-file");
-    let avatarDataUrl = avatar;
+    let avatarDataUrl = "";
     if (fileEl?.files && fileEl.files[0]) {
       const { processAvatarImage } = await import("../utils/image-process");
       try {

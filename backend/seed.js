@@ -65,19 +65,19 @@ async function main() {
     username: "admin",
     password: "admin123",
     role: "admin",
-    avatar: "https://i.pravatar.cc/150?u=admin",
+    avatar: null,
   });
   const alice = await upsertUser({
     username: "alice",
     password: "password123",
     role: "user",
-    avatar: "https://i.pravatar.cc/150?u=alice",
+    avatar: null,
   });
   const bob = await upsertUser({
     username: "bob",
     password: "password123",
     role: "user",
-    avatar: "https://i.pravatar.cc/150?u=bob",
+    avatar: null,
   });
 
   // Extra users for richer demo
@@ -85,19 +85,19 @@ async function main() {
     username: "charlie",
     password: "password123",
     role: "user",
-    avatar: "https://i.pravatar.cc/150?u=charlie",
+    avatar: null,
   });
   const dana = await upsertUser({
     username: "dana",
     password: "password123",
     role: "user",
-    avatar: "https://i.pravatar.cc/150?u=dana",
+    avatar: null,
   });
   const eve = await upsertUser({
     username: "eve",
     password: "password123",
     role: "user",
-    avatar: "https://i.pravatar.cc/150?u=eve",
+    avatar: null,
   });
 
   // Posts

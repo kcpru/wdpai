@@ -7,6 +7,8 @@ export default class SettingsAccountPage extends ShadowComponent {
       <style>
         :host { display: block; }
         form { display: flex; flex-direction: column; gap: .75rem; }
+        .upload-row { display:flex; align-items:center; gap: var(--spacing-sm); }
+        .file-name { font-size: var(--text-xs); color: hsl(var(--muted-foreground)); }
       </style>
       <form id="account-settings-form" novalidate>
         <y-field id="username" type="text" required regex="^[\\w.-]{3,32}$">
@@ -20,30 +22,53 @@ export default class SettingsAccountPage extends ShadowComponent {
           <span slot="error-text">Please enter a valid email address.</span>
         </y-field>
 
-        <y-field id="avatar" type="url">
-          <span slot="label">Avatar URL</span>
-          <span slot="helper-text">Direct image URL (PNG/JPG/WebP).</span>
-        </y-field>
+        <div class="upload-row">
+          <input type="file" id="avatar-file" accept="image/*" hidden />
+          <y-button id="pick-file" variant="outline" aria-label="Choose avatar">
+            Choose avatar
+            <y-icon icon="image" slot="icon"></y-icon>
+          </y-button>
+          <span id="file-name" class="file-name" aria-live="polite"></span>
+        </div>
 
         <y-button type="submit">Save changes</y-button>
       </form>
     `;
 
+    // Wire styled file picker
+    const pickBtn = this.qs<HTMLElement>("#pick-file");
+    const fileInput = this.qs<HTMLInputElement>("#avatar-file");
+    const fileName = this.qs<HTMLSpanElement>("#file-name");
+    pickBtn.addEventListener("click-event" as any, () => fileInput.click());
+    fileInput.addEventListener("change", () => {
+      const f = fileInput.files?.[0];
+      fileName.textContent = f ? f.name : "";
+    });
+
     this.on("form#account-settings-form", "submit", async (e) => {
       e.preventDefault();
-      // Read avatar input
-      const avatarHost = this.qs<HTMLElement>("#avatar");
-      const input = avatarHost?.shadowRoot?.querySelector("input") as HTMLInputElement | null;
-      const avatar = (input?.value || "").trim();
+      const fileEl = this.qs<HTMLInputElement>("#avatar-file");
       try {
-        if (avatar) {
-          const res = await fetch(`${(import.meta as any).env.VITE_API}/settings/avatar`, {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ avatar }),
-          });
-          if (!res.ok) throw new Error("failed");
+        if (fileEl?.files && fileEl.files[0]) {
+          const { processAvatarImage } = await import(
+            "../../utils/image-process"
+          );
+          let avatar = "";
+          try {
+            avatar = await processAvatarImage(fileEl.files[0]);
+          } catch {}
+          if (avatar) {
+            const res = await fetch(
+              `${(import.meta as any).env.VITE_API}/settings/avatar`,
+              {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ avatar }),
+              }
+            );
+            if (!res.ok) throw new Error("failed");
+          }
         }
         // Optionally handle username/email later
       } catch {}
